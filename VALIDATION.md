@@ -1,8 +1,8 @@
 # Validation
 
-The test suite has 27 tests across 7 koan files.
+The test suite has 34 tests across 8 koan files.
 
-I validated the tests against a local reference implementation before restoring `src/attention_koans/koans.py` to its intended koan/TODO state.
+I validated that the suite can be collected against the intended koan/TODO state in `src/llm_koans/koans.py`.
 
 Expected state when you first run `pytest`:
 
@@ -11,4 +11,4 @@ Expected state when you first run `pytest`:
 
 Expected state after completing all TODOs:
 
-- `27 passed`
+- `34 passed`

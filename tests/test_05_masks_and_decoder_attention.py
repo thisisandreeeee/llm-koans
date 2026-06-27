@@ -2,7 +2,7 @@ import math
 
 import torch
 
-from attention_koans import koans as K
+from llm_koans import koans as K
 
 
 def test_causal_mask_blocks_only_future_positions():

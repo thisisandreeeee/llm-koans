@@ -2,7 +2,7 @@ import copy
 
 import torch
 
-from attention_koans import koans as K
+from llm_koans import koans as K
 
 
 def snapshot(model):

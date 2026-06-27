@@ -3,7 +3,7 @@ import math
 import torch
 import torch.nn.functional as F
 
-from attention_koans import koans as K
+from llm_koans import koans as K
 
 
 def ref_split(X, H):
