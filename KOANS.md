@@ -1,6 +1,6 @@
 # LLM Koan Learning Path
 
-The path starts with model internals, then moves outward into the operational problems that appear when an LLM leaves the notebook.
+The path builds from basic tensor operations to attention, Transformer blocks, and the training step that updates model parameters.
 
 ## 01. Shapes and projections
 
@@ -112,32 +112,3 @@ You will implement:
 Main idea:
 
 Q, K, V vectors are temporary. The matrices that create them are trained.
-
-## 08. LLM deployment
-
-You will implement:
-
-- `estimate_tokens`
-- `validate_generation_budget`
-- `create_generation_app`
-- `select_backend`
-- `pack_micro_batch`
-- `should_retry_error`
-
-Main ideas:
-
-```text
-serving    = wrap inference in a stable API
-budgeting  = prompts + outputs must fit context windows
-routing    = choose healthy capacity that can handle the request
-batching   = improve throughput without blowing latency or memory
-retries    = retry transient faults, not permanent request bugs
-```
-
-This koan deliberately ranges from easy to production-shaped:
-
-1. Start with a simple FastAPI `/health` and `/generate` service.
-2. Add token-budget checks so requests fail before wasting model time.
-3. Route large requests away from tiny backends.
-4. Pack micro-batches under a shared token budget.
-5. Separate retryable overload/timeouts from non-retryable bad prompts, auth failures, and context overflows.
