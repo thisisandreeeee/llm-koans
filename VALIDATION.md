@@ -2,7 +2,7 @@
 
 The test suite has 34 tests across 8 koan files.
 
-I validated that the suite can be collected against the intended koan/TODO state in `src/llm_koans/koans.py`.
+I validated that the suite can be collected against the intended koan/TODO state across the focused modules in `src/llm_koans/`.
 
 Expected state when you first run `pytest`:
 

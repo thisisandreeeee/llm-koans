@@ -29,7 +29,14 @@ https://sebastianraschka.com/blog/2023/self-attention-from-scratch.html
 
 ```text
 llm-koans/
-├── src/llm_koans/koans.py         # You edit this file
+├── src/llm_koans/                 # You edit the focused koan modules here
+│   ├── shapes.py                  # Koan 01
+│   ├── attention.py               # Koans 02-04
+│   ├── masks.py                   # Koan 05
+│   ├── blocks.py                  # Koan 06
+│   ├── training.py                # Koan 07
+│   ├── deployment.py              # Koan 08
+│   └── koans.py                   # Stable public API used by tests
 ├── tests/                         # Tests verify each koan
 ├── tools/check.py                  # Convenience test runner
 ├── README.md
@@ -55,7 +62,7 @@ Run all tests:
 pytest
 ```
 
-At first, many tests will fail because `src/llm_koans/koans.py` contains `TODO` placeholders.
+At first, many tests will fail because the focused modules in `src/llm_koans/` contain `TODO` placeholders.
 
 Work through the tests in order:
 
@@ -82,7 +89,7 @@ python tools/check.py 08
 
 1. Open the failing test.
 2. Read the test name and comments.
-3. Implement only the function needed for that test.
+3. Implement only the function needed for that test in the matching focused module.
 4. Run the test again.
 5. Move to the next test file.
 
