@@ -1,8 +1,8 @@
-# Attention & Transformer Koans
+# LLM Koans
 
-A hands-on set of PyTorch koans for building intuition about attention and Transformers.
+A hands-on set of practical Python koans for building intuition about how LLMs work *and* how they get served in the real world.
 
-The koans build on these ideas:
+The early koans still teach the core mechanics behind modern LLMs:
 
 - **Query** = what this token is looking for.
 - **Key** = how another token advertises that it is relevant.
@@ -10,18 +10,26 @@ The koans build on these ideas:
 - **Dot product** = an alignment/similarity score between a query and a key.
 - **Softmax** = converts raw scores into positive weights that sum to 1.
 - **Context vector** = a weighted blend of values; the token after gathering context.
-- **Encoder** = reads an input sequence and produces contextual token vectors.
-- **Decoder** = generates output using masked self-attention and, in encoder-decoder models, cross-attention.
+- **Encoder/decoder blocks** = the classic Transformer building blocks.
+- **Training update** = the step that changes parameters, not the temporary Q/K/V activations.
 
-The exercises are inspired by the step-by-step structure in Sebastian Raschka's article, "Understanding and Coding the Self-Attention Mechanism of Large Language Models From Scratch":
+The repo now broadens from model internals into production-shaped LLM work:
+
+- serving generation behind a small FastAPI app
+- validating context-window and output-token budgets
+- routing requests across healthy backends
+- micro-batching under token limits
+- deciding which failures are safe to retry
+
+The attention exercises are inspired by the step-by-step structure in Sebastian Raschka's article, "Understanding and Coding the Self-Attention Mechanism of Large Language Models From Scratch":
 
 https://sebastianraschka.com/blog/2023/self-attention-from-scratch.html
 
 ## Repository layout
 
 ```text
-attention-transformer-koans/
-├── src/attention_koans/koans.py   # You edit this file
+llm-koans/
+├── src/llm_koans/koans.py         # You edit this file
 ├── tests/                         # Tests verify each koan
 ├── tools/check.py                  # Convenience test runner
 ├── README.md
@@ -33,7 +41,7 @@ attention-transformer-koans/
 ## Setup
 
 ```bash
-cd attention-transformer-koans
+cd attention-transformer-koans  # repository name on GitHub for now
 python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 python -m pip install -e .
@@ -47,7 +55,7 @@ Run all tests:
 pytest
 ```
 
-At first, many tests will fail because `src/attention_koans/koans.py` contains `TODO` placeholders.
+At first, many tests will fail because `src/llm_koans/koans.py` contains `TODO` placeholders.
 
 Work through the tests in order:
 
@@ -59,6 +67,7 @@ pytest tests/test_04_multihead_attention.py -q
 pytest tests/test_05_masks_and_decoder_attention.py -q
 pytest tests/test_06_encoder_decoder_blocks.py -q
 pytest tests/test_07_training_updates.py -q
+pytest tests/test_08_llm_deployment.py -q
 ```
 
 Or use the helper:
@@ -66,6 +75,7 @@ Or use the helper:
 ```bash
 python tools/check.py
 python tools/check.py 03
+python tools/check.py 08
 ```
 
 ## Suggested learning loop
@@ -80,7 +90,7 @@ This is intentionally not a polished library. It is a learning repo. The tests a
 
 ## Shape convention used here
 
-Most functions use the practical PyTorch-friendly convention:
+Most tensor functions use the practical PyTorch-friendly convention:
 
 ```text
 B = batch size
@@ -103,4 +113,4 @@ W: (d_out, d_in)
 X @ W.T -> (T, d_out)
 ```
 
-This matches the mental model from our conversation: keep tokens as rows, then use `X @ W.T` for projections.
+This matches the practical mental model: keep tokens as rows, then use `X @ W.T` for projection-matrix examples.

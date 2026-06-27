@@ -3,14 +3,17 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "attention-transformer-koans"
+name = "llm-koans"
 version = "0.1.0"
-description = "Progressive PyTorch koans for learning attention and Transformer encoder/decoder architecture."
+description = "Progressive Python koans for learning LLM internals and practical deployment patterns."
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "torch>=2.0",
+    "fastapi>=0.111,<0.116",
+    "httpx>=0.27,<0.29",
+    "numpy>=1.26",
     "pytest>=8.0",
+    "torch>=2.0",
 ]
 
 [tool.setuptools.packages.find]

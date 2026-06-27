@@ -2,7 +2,7 @@ import math
 
 import torch
 
-from attention_koans import koans as K
+from llm_koans import koans as K
 
 
 def reference_split_heads(X, num_heads):

@@ -1,6 +1,6 @@
 import torch
 
-from attention_koans import koans as K
+from llm_koans import koans as K
 
 
 def test_name_shape_teaches_named_dimensions():
