@@ -1,8 +1,8 @@
 # LLM Koans
 
-A hands-on set of practical Python koans for building intuition about how LLMs work *and* how they get served in the real world.
+A hands-on set of practical Python koans for building intuition about the attention and Transformer mechanics behind LLMs.
 
-The early koans still teach the core mechanics behind modern LLMs:
+The koans teach the core mechanics behind modern LLMs:
 
 - **Query** = what this token is looking for.
 - **Key** = how another token advertises that it is relevant.
@@ -13,14 +13,6 @@ The early koans still teach the core mechanics behind modern LLMs:
 - **Encoder/decoder blocks** = the classic Transformer building blocks.
 - **Training update** = the step that changes parameters, not the temporary Q/K/V activations.
 
-The repo now broadens from model internals into production-shaped LLM work:
-
-- serving generation behind a small FastAPI app
-- validating context-window and output-token budgets
-- routing requests across healthy backends
-- micro-batching under token limits
-- deciding which failures are safe to retry
-
 The attention exercises are inspired by the step-by-step structure in Sebastian Raschka's article, "Understanding and Coding the Self-Attention Mechanism of Large Language Models From Scratch":
 
 https://sebastianraschka.com/blog/2023/self-attention-from-scratch.html
@@ -29,7 +21,16 @@ https://sebastianraschka.com/blog/2023/self-attention-from-scratch.html
 
 ```text
 llm-koans/
-├── src/llm_koans/koans.py         # You edit this file
+├── src/llm_koans/                 # You edit the focused koan modules here
+│   ├── koan_01_shapes.py
+│   ├── koan_02_attention_scores.py
+│   ├── koan_03_self_attention.py
+│   ├── koan_04_multihead_attention.py
+│   ├── koan_05_masks.py
+│   ├── koan_06_blocks.py
+│   ├── koan_07_training.py
+│   ├── common.py                  # Shared helpers, no koan prefix
+│   └── koans.py                   # Stable public API used by tests
 ├── tests/                         # Tests verify each koan
 ├── tools/check.py                  # Convenience test runner
 ├── README.md
@@ -55,7 +56,7 @@ Run all tests:
 pytest
 ```
 
-At first, many tests will fail because `src/llm_koans/koans.py` contains `TODO` placeholders.
+At first, many tests will fail because the focused modules in `src/llm_koans/` contain `TODO` placeholders.
 
 Work through the tests in order:
 
@@ -67,7 +68,6 @@ pytest tests/test_04_multihead_attention.py -q
 pytest tests/test_05_masks_and_decoder_attention.py -q
 pytest tests/test_06_encoder_decoder_blocks.py -q
 pytest tests/test_07_training_updates.py -q
-pytest tests/test_08_llm_deployment.py -q
 ```
 
 Or use the helper:
@@ -75,14 +75,13 @@ Or use the helper:
 ```bash
 python tools/check.py
 python tools/check.py 03
-python tools/check.py 08
 ```
 
 ## Suggested learning loop
 
 1. Open the failing test.
 2. Read the test name and comments.
-3. Implement only the function needed for that test.
+3. Implement only the function needed for that test in the matching focused module.
 4. Run the test again.
 5. Move to the next test file.
 
