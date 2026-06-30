@@ -8,6 +8,15 @@ order is visible in the file tree. Tests import this module as
 from __future__ import annotations
 
 from .common import KoanIncomplete, TODO
+from .koan_00_matmul_intuition import (
+    batched_linear_projection,
+    batch_specific_linear_projection,
+    matmul_matrix_matrix,
+    matmul_matrix_vector,
+    matmul_vector_dot,
+    pairwise_dot_products,
+    split_batch_and_matrix_dims,
+)
 from .koan_01_shapes import dot_product, name_shape, project_sequence, project_token
 from .koan_02_attention_scores import (
     attention_scores,
@@ -41,6 +50,8 @@ __all__ = [
     "apply_attention_mask",
     "attention_scores",
     "attention_weights",
+    "batched_linear_projection",
+    "batch_specific_linear_projection",
     "causal_mask",
     "combine_heads",
     "context_from_weights",
@@ -49,8 +60,12 @@ __all__ = [
     "dot_product",
     "encoder_block_forward",
     "masked_attention_weights",
+    "matmul_matrix_matrix",
+    "matmul_matrix_vector",
+    "matmul_vector_dot",
     "multi_head_self_attention",
     "name_shape",
+    "pairwise_dot_products",
     "parameter_delta_norm",
     "position_wise_ffn",
     "project_sequence",
@@ -59,6 +74,7 @@ __all__ = [
     "self_attention_for_one_query",
     "single_head_self_attention",
     "softmax_last_dim",
+    "split_batch_and_matrix_dims",
     "split_heads",
     "train_one_step",
 ]

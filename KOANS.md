@@ -2,6 +2,29 @@
 
 The path builds from basic tensor operations to attention, Transformer blocks, and the training step that updates model parameters.
 
+## 00. PyTorch matmul intuition
+
+You will implement:
+
+- `split_batch_and_matrix_dims`
+- `matmul_vector_dot`
+- `matmul_matrix_vector`
+- `matmul_matrix_matrix`
+- `batched_linear_projection`
+- `batch_specific_linear_projection`
+- `pairwise_dot_products`
+
+Main idea:
+
+```text
+last two dims = matrix
+earlier dims = batch
+shared inner dim disappears
+```
+
+This is the shape rule behind projections, batched projections, and attention
+scores. Learn this first and `Q @ K.transpose(-2, -1)` becomes much less spooky.
+
 ## 01. Shapes and projections
 
 You will implement:
