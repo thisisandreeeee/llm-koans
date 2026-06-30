@@ -4,6 +4,7 @@ A hands-on set of practical Python koans for building intuition about the attent
 
 The koans teach the core mechanics behind modern LLMs:
 
+- **PyTorch matmul rule** = last two dims are the matrix; earlier dims are batch.
 - **Query** = what this token is looking for.
 - **Key** = how another token advertises that it is relevant.
 - **Value** = the information retrieved if that token is attended to.
@@ -22,6 +23,7 @@ https://sebastianraschka.com/blog/2023/self-attention-from-scratch.html
 ```text
 llm-koans/
 ├── src/llm_koans/                 # You edit the focused koan modules here
+│   ├── koan_00_matmul_intuition.py
 │   ├── koan_01_shapes.py
 │   ├── koan_02_attention_scores.py
 │   ├── koan_03_self_attention.py
@@ -61,6 +63,7 @@ At first, many tests will fail because the focused modules in `src/llm_koans/` c
 Work through the tests in order:
 
 ```bash
+pytest tests/test_00_matmul_intuition.py -q
 pytest tests/test_01_shapes_and_projections.py -q
 pytest tests/test_02_attention_scores.py -q
 pytest tests/test_03_self_attention.py -q
@@ -86,6 +89,22 @@ python tools/check.py 03
 5. Move to the next test file.
 
 This is intentionally not a polished library. It is a learning repo. The tests are the teacher.
+
+## PyTorch matmul rule of thumb
+
+For tensors with two or more dimensions, `torch.matmul` treats the final two
+axes as the matrix and every earlier axis as batch:
+
+```text
+(..., rows, shared) @ (..., shared, cols) -> (..., rows, cols)
+```
+
+The leading batch axes must either match or be broadcastable. This is why:
+
+```text
+(B, T, D) @ (D, E)              -> (B, T, E)
+(B, H, Tq, D) @ (B, H, D, Tk)   -> (B, H, Tq, Tk)
+```
 
 ## Shape convention used here
 

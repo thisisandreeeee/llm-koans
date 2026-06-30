@@ -1,8 +1,8 @@
 # Validation
 
-The test suite has 27 tests across 7 koan files.
+The test suite has 34 tests across 8 koan files.
 
-I validated that the suite can be collected against the intended koan/TODO state across the focused modules in `src/llm_koans/`.
+I validated that the suite can be collected against the intended koan/TODO state across the focused modules in `src/llm_koans/`. I also checked that the new matmul koans pass when completed with the intended minimal implementations.
 
 Expected state when you first run `pytest`:
 
@@ -11,4 +11,4 @@ Expected state when you first run `pytest`:
 
 Expected state after completing all TODOs:
 
-- `27 passed`
+- `34 passed`
