@@ -1,6 +1,6 @@
 # LLM Koan Learning Path
 
-The path builds from basic tensor operations to attention, Transformer blocks, and the training step that updates model parameters.
+The path builds from basic tensor operations to attention, Transformer blocks, and practical fine-tuning workflows.
 
 ## 00. PyTorch matmul intuition
 
@@ -135,3 +135,89 @@ You will implement:
 Main idea:
 
 Q, K, V vectors are temporary. The matrices that create them are trained.
+
+## 08. SFT data and supervised fine-tuning
+
+You will implement:
+
+- `encode_chat_messages`
+- `assistant_only_labels`
+- `sft_step`
+- `freeze_base_for_classifier_tuning`
+- `supervised_finetune_step`
+
+Main idea:
+
+```text
+chat messages -> template tokens -> assistant-only labels -> SFT loss
+base model -> frozen base + trainable head
+```
+
+You start with the most common fine-tuning failure mode: wrong training signal. The koan makes prompt tokens disappear from the loss, then shows a small supervised head fine-tune where only the intended parameters move.
+
+## 09. LoRA adapter lifecycle
+
+You will implement:
+
+- `LoRALinear.forward`
+- `add_lora_classifier_adapter`
+- `lora_adapter_state`
+- `load_lora_adapter_state`
+- `merge_lora_linear`
+
+Main idea:
+
+```text
+frozen base output + low-rank adapter output = adapted model
+adapter artifact = A and B only
+merge for deployment = base weight + adapter delta
+```
+
+This koan turns LoRA from a buzzword into a concrete module lifecycle: train only the adapter, save only the adapter, load it onto a fresh base, and optionally merge it into a normal linear layer.
+
+## 10. Distillation fine-tuning
+
+You will implement:
+
+- `distillation_kl_loss`
+- `blended_distillation_loss`
+- `distillation_step`
+
+Main idea:
+
+```text
+teacher logits -> softened distribution -> student update
+```
+
+The student learns from the teacher's probability distribution, not only from hard labels. The koan verifies that the student changes while the teacher stays frozen.
+
+## 11. DPO preference fine-tuning
+
+You will implement:
+
+- `sequence_logprobs`
+- `dpo_loss`
+- `dpo_step`
+
+Main idea:
+
+```text
+policy chosen-vs-rejected gap > reference chosen-vs-rejected gap
+```
+
+This koan uses prompt+completion sequences and masks the prompt so preference tuning is driven by completion tokens. The policy updates; the reference model stays frozen.
+
+## 12. Evaluation-gated fine-tuning
+
+You will implement:
+
+- `classification_accuracy`
+- `accept_candidate_if_improves`
+
+Main idea:
+
+```text
+fine-tune candidate -> validation gate -> keep or roll back
+```
+
+A fine-tune is not successful because training ran. It is successful only if it clears a task-specific validation gate without regressing the baseline.
