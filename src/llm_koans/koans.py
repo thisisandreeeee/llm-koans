@@ -39,7 +39,13 @@ from .koan_06_blocks import (
     encoder_block_forward,
     position_wise_ffn,
 )
-from .koan_07_training import TinyAttentionClassifier, parameter_delta_norm, train_one_step
+from .koan_07_training import (
+    TinyEncoder,
+    TinyEncoderDecoder,
+    TinyTransformer,
+    parameter_delta_norm,
+    train_one_step,
+)
 from .koan_08_finetuning import (
     TinyBaseTextClassifier,
     TinyCausalLM,
@@ -70,7 +76,9 @@ __all__ = [
     "KoanIncomplete",
     "LoRALinear",
     "TODO",
-    "TinyAttentionClassifier",
+    "TinyEncoder",
+    "TinyEncoderDecoder",
+    "TinyTransformer",
     "TinyBaseTextClassifier",
     "TinyCausalLM",
     "accept_candidate_if_improves",

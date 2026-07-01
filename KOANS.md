@@ -125,16 +125,29 @@ encoder   = read
 decoder   = write
 ```
 
-## 07. Training updates
+## 07. Assembling and training transformer variants
 
 You will implement:
 
-- `train_one_step`
-- `parameter_delta_norm`
+- `TinyTransformer.forward` — GPT‑style causal LM
+- `TinyEncoder.forward` — BERT‑style bidirectional encoder
+- `TinyEncoderDecoder.forward` — T5‑style encoder‑decoder with cross‑attention
+- `train_one_step` — standard next‑token prediction loop
+- `parameter_delta_norm` — measure how much parameters moved
 
 Main idea:
 
-Q, K, V vectors are temporary. The matrices that create them are trained.
+```text
+Exercise A:  nn.Embedding + position → causal mask → nn.TransformerEncoder → LM head
+Exercise B:  same blocks, no mask → mean pool → classifier
+Exercise C:  encoder (no mask) + decoder (causal + cross‑attention) → LM head
+```
+
+Koans 00–06 built attention mechanics by hand. This koan shows the
+practitioner taxonomy: three architectures that cover virtually every
+transformer in production, all using the same `nn` building blocks. If you
+understand what changes between them (the mask, the pooling, the
+cross‑attention target), you can reason about any transformer variant.
 
 ## 08. SFT data and supervised fine-tuning
 
