@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import torch
 from torch import Tensor
 
@@ -21,7 +22,8 @@ def causal_mask(seq_len: int, device: torch.device | None = None) -> Tensor:
          [False, False, False, True ],
          [False, False, False, False]]
     """
-    TODO("Use torch.triu with diagonal=1 to create an upper-triangular boolean mask.")
+    X = torch.ones(seq_len, seq_len) == 1
+    return torch.triu(X, diagonal=1)
 
 
 def apply_attention_mask(scores: Tensor, mask: Tensor | None) -> Tensor:
@@ -30,9 +32,12 @@ def apply_attention_mask(scores: Tensor, mask: Tensor | None) -> Tensor:
     scores can be (T, T), (B, H, T, T), or cross-attention-shaped.
     mask should broadcast over scores.
     """
-    TODO("Use scores.masked_fill(mask, float('-inf')), but return scores unchanged if mask is None.")
+    return scores.masked_fill(mask, float("-inf"))
 
 
 def masked_attention_weights(Q: Tensor, K: Tensor, mask: Tensor | None) -> Tensor:
     """Scaled-softmax attention weights with an optional mask."""
-    TODO("Compute scores, apply mask, then softmax over the last dimension.")
+    scores = Q @ K.T / math.sqrt(Q.shape[-1])
+    scores = apply_attention_mask(scores, mask)
+    weights = torch.softmax(scores, dim=-1)
+    return weights

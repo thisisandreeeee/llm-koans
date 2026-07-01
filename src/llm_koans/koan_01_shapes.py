@@ -14,7 +14,7 @@ def name_shape(x: Tensor, names: tuple[str, ...]) -> dict[str, int]:
         X.shape == (6, 16), names == ("tokens", "features")
         -> {"tokens": 6, "features": 16}
     """
-    TODO("Create a dict mapping each provided dimension name to the matching x.shape value.")
+    return {id: n for n, id in zip(x.shape, names)}
 
 
 def dot_product(a: Tensor, b: Tensor) -> Tensor:
@@ -22,7 +22,7 @@ def dot_product(a: Tensor, b: Tensor) -> Tensor:
 
     Intuition: a dot product is a single alignment score.
     """
-    TODO("Compute a · b. Hint: multiply elementwise, then sum; or use torch.dot.")
+    return a @ b
 
 
 def project_token(W: Tensor, x: Tensor) -> Tensor:
@@ -31,7 +31,7 @@ def project_token(W: Tensor, x: Tensor) -> Tensor:
     W has shape (d_out, d_in), x has shape (d_in,), output is (d_out,).
     This is the basic q = W_q @ x idea.
     """
-    TODO("Use matrix-vector multiplication to transform x with W.")
+    return x @ W.T
 
 
 def project_sequence(X: Tensor, W: Tensor) -> Tensor:
@@ -41,4 +41,4 @@ def project_sequence(X: Tensor, W: Tensor) -> Tensor:
 
     Keep tokens as rows. That makes the projection X @ W.T.
     """
-    TODO("Project all token rows. Hint: X @ W.T")
+    return X @ W.T

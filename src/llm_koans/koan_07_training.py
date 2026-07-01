@@ -80,7 +80,12 @@ class TinyTransformer(nn.Module):
 
     def forward(self, token_ids: Tensor) -> Tensor:
         """Return next‑token logits of shape (batch, seq_len, vocab_size)."""
-        TODO("Embed tokens + positions, create causal mask, run transformer, project to vocab.")
+        _, T = token_ids.shape
+        tokens = self.token_embedding(token_ids)  # (B, T, d_model)
+        positions = self.position_embedding(torch.arange(T, device=token_ids.device))  # (T, d_model)
+        X = tokens + positions
+        logits = self.transformer(X, mask=_causal_mask(T, device=token_ids.device))
+        return self.lm_head(logits)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -133,7 +138,11 @@ class TinyEncoder(nn.Module):
 
     def forward(self, token_ids: Tensor) -> Tensor:
         """Return class logits of shape (batch, num_classes)."""
-        TODO("Embed tokens + positions, run transformer WITHOUT a causal mask, mean pool, classify.")
+        _, T = token_ids.shape
+        tokens = self.token_embedding(token_ids)
+        positions = self.position_embedding(torch.arange(T, device=token_ids.device))
+        logits = self.transformer(tokens + positions).mean(dim=1)
+        return self.classifier(logits)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -206,7 +215,18 @@ class TinyEncoderDecoder(nn.Module):
 
     def forward(self, src_ids: Tensor, tgt_ids: Tensor) -> Tensor:
         """Return next‑token logits of shape (batch, tgt_seq_len, tgt_vocab_size)."""
-        TODO("Encode source (no mask), decode target with causal mask + cross-attention to encoder output, project to vocab.")
+        _, T_src = src_ids.shape
+        src_tokens = self.enc_token_embedding(src_ids)
+        src_positions = self.enc_position_embedding(torch.arange(T_src, device=src_ids.device))
+        memory = self.encoder(src_tokens + src_positions)
+
+        _, T_tgt = tgt_ids.shape
+        tgt_tokens = self.dec_token_embedding(tgt_ids)
+        tgt_positions = self.dec_position_embedding(torch.arange(T_tgt, device=tgt_ids.device))
+        decoder_hidden = self.decoder(
+            tgt_tokens + tgt_positions, memory, tgt_mask=_causal_mask(T_tgt, device=tgt_ids.device)
+        )
+        return self.lm_head(decoder_hidden)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -224,9 +244,21 @@ def train_one_step(
     logits[:, :-1, :] should predict token_ids[:, 1:].  Use cross‑entropy loss,
     back‑propagate, and step the optimizer.
     """
-    TODO("Forward, shift logits and targets, compute cross-entropy, backward, step optimizer, return detached loss.")
+    optimizer.zero_grad()
+    logits = model(token_ids)  # (B, T, D)
+    criterion = nn.CrossEntropyLoss()
+    loss = criterion(logits[:, :-1, :].transpose(1, 2), token_ids[:, 1:])
+    loss.backward()
+    optimizer.step()
+    return loss.detach()
 
 
 def parameter_delta_norm(before: dict[str, Tensor], after: dict[str, Tensor]) -> float:
     """Return the total L2 norm of parameter changes between two state‑dict snapshots."""
-    TODO("Sum squared parameter differences across matching keys, then return sqrt(total).")
+    total = 0.0
+
+    for key in before:
+        diff = after[key] - before[key]
+        total += (diff**2).sum().item()
+
+    return total**0.5

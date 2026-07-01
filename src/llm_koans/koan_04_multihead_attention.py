@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 from torch import Tensor
+import torch
+import math
 
 from .common import TODO
 
@@ -15,7 +17,9 @@ def split_heads(X: Tensor, num_heads: int) -> Tensor:
 
     The operation should not change the data order; it only reshapes and permutes.
     """
-    TODO("Reshape to (B, T, H, Dh), then permute to (B, H, T, Dh).")
+    B, T, D = X.shape
+    Dh = D // num_heads
+    return X.reshape(B, T, num_heads, Dh).transpose(1, 2)
 
 
 def combine_heads(X: Tensor) -> Tensor:
@@ -24,7 +28,8 @@ def combine_heads(X: Tensor) -> Tensor:
     X:      (B, H, T, Dh)
     return: (B, T, H * Dh)
     """
-    TODO("Permute to (B, T, H, Dh), make contiguous, then view/reshape.")
+    B, H, T, Dh = X.shape
+    return X.transpose(1, 2).reshape(B, T, H * Dh)
 
 
 def multi_head_self_attention(
@@ -51,4 +56,17 @@ def multi_head_self_attention(
         output:  (B, T, D)
         weights: (B, H, T, T)
     """
-    TODO("Project, split heads, attend, combine heads, then apply W_o.")
+    Q = X @ W_q  # (B, T, D)
+    K = X @ W_k  # (B, T, D)
+    Q = split_heads(Q, num_heads)  # (B, H, T, Dh)
+    K = split_heads(K, num_heads)  # (B, H, T, Dh)
+    scores = Q @ K.transpose(-1, -2) / math.sqrt(K.shape[-1])  # (B, H, T, T)
+    if mask is not None:
+        scores = scores.masked_fill(mask, float("-inf"))
+    weights = torch.softmax(scores, dim=-1)  # (B, H, T, T)
+    V = X @ W_v  # (B, T, D)
+    V = split_heads(V, num_heads)  # (B, H, T, Dh)
+    context = weights @ V  # (B, H, T, Dh)
+    context = combine_heads(context)  # (B, T, D)
+    output = context @ W_o  # (B, T, D)
+    return output, weights

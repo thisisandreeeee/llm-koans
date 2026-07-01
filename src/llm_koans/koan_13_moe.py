@@ -5,6 +5,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from torch import Tensor
+import torch
+import torch.nn.functional as F
+import math
 
 from .common import TODO
 
@@ -36,7 +39,7 @@ def expert_router_logits(X: Tensor, router_W: Tensor, router_b: Tensor) -> Tenso
     Intuition: attention decides which tokens to read from; the router decides
     which token-local FFN expert should process each token after attention.
     """
-    TODO("Compute X @ router_W + router_b to produce one score per expert.")
+    return X @ router_W + router_b
 
 
 def top1_expert_routing(router_logits: Tensor) -> tuple[Tensor, Tensor]:
@@ -51,7 +54,10 @@ def top1_expert_routing(router_logits: Tensor) -> tuple[Tensor, Tensor]:
     This is the tiny version of Switch Transformer routing: one token goes to
     one expert, and the chosen expert output is scaled by the router confidence.
     """
-    TODO("Softmax over experts, take argmax, then gather the selected probability.")
+    probs = torch.softmax(router_logits, dim=-1)  # (B, T, E)
+    indices = torch.argmax(probs, dim=-1)
+    gates = torch.gather(probs, dim=-1, index=indices.unsqueeze(-1)).squeeze(-1)
+    return indices, gates
 
 
 def routed_expert_ffn(
@@ -75,7 +81,24 @@ def routed_expert_ffn(
     Each expert is a normal two-layer position-wise FFN. The MoE difference is
     that tokens can choose different FFN parameters through the router.
     """
-    TODO("For each expert id, run relu(X @ W1 + b1) @ W2 + b2 on only its tokens.")
+    out = torch.zeros_like(X)
+    for e in range(expert_W1.shape[0]):
+        mask = expert_indices == e
+        hidden = torch.relu(X[mask] @ expert_W1[e] + expert_b1[e])
+        out_e = hidden @ expert_W2[e] + expert_b2[e]
+        out[mask] = out_e
+    return out
+
+
+def split_heads(X: Tensor, num_heads: int) -> Tensor:
+    B, T, D = X.shape
+    Dh = D // num_heads
+    return X.reshape(B, T, num_heads, Dh).transpose(1, 2)
+
+
+def combine_heads(X: Tensor) -> Tensor:
+    B, H, T, Dh = X.shape
+    return X.transpose(1, 2).reshape(B, T, H * Dh)
 
 
 def moe_encoder_block_forward(
@@ -96,4 +119,29 @@ def moe_encoder_block_forward(
         expert_indices: (B, T)
         expert_gates:   (B, T)
     """
-    TODO("Replace the dense FFN in an encoder block with top-1 routed expert FFNs.")
+    B, T, D = X.shape
+    Q = split_heads(X @ weights.W_q, num_heads)  # (B, H, T, Dh)
+    K = split_heads(X @ weights.W_k, num_heads)  # (B, H, T, Dh)
+    scores = Q @ K.transpose(-1, -2) / math.sqrt(K.shape[-1])  # (B, H, T, T)
+    attn_weights = torch.softmax(scores, dim=-1)
+    V = split_heads(X @ weights.W_v, num_heads)  # (B, H, T, Dh)
+    context = attn_weights @ V  # (B, H, T, Dh)
+    context = combine_heads(context)  # (B, T, H * Dh)
+    attn_output = context @ weights.W_o  # (B, T, D)
+    X1 = F.layer_norm(X + attn_output, (D,))
+    logits = expert_router_logits(X1, weights.router_W, weights.router_b)
+    expert_ids, gates = top1_expert_routing(logits)
+    X2 = F.layer_norm(
+        X1
+        + gates.unsqueeze(-1)
+        * routed_expert_ffn(
+            X1,
+            expert_ids,
+            weights.expert_W1,
+            weights.expert_b1,
+            weights.expert_W2,
+            weights.expert_b2,
+        ),
+        (D,),
+    )
+    return X2, expert_ids, gates

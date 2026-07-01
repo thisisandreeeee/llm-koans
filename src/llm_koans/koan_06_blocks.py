@@ -5,6 +5,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from torch import Tensor
+import torch
+import torch.nn.functional as F
+import math
 
 from .common import TODO
 
@@ -22,7 +25,9 @@ def position_wise_ffn(
 
     Intuition: attention lets tokens talk; FFN lets each token process itself.
     """
-    TODO("Compute relu(X @ W1 + b1) @ W2 + b2.")
+    lin = X @ W1 + b1
+    relu = lin.clamp(min=0)
+    return relu @ W2 + b2
 
 
 @dataclass
@@ -108,7 +113,15 @@ def cross_attention(
         output:  (B, T_dec, D)
         weights: (B, H, T_dec, T_enc)
     """
-    TODO("Project Q from decoder states; project K/V from encoder states; then attend.")
+    Q = split_heads(decoder_states @ W_q, num_heads)  # (B, H, T_dec, Dh)
+    K = split_heads(encoder_states @ W_k, num_heads)  # (B, H, T_enc, Dh)
+    scores = Q @ K.transpose(-1, -2) / math.sqrt(K.shape[-1])  # (B, H, T_dec, T_enc)
+    weights = torch.softmax(scores, dim=-1)  # (B, H, T_dec, T_enc)
+    V = split_heads(encoder_states @ W_v, num_heads)  # (B, H, T_enc, Dh)
+    context = weights @ V  # (B, H, T_enc, Dh)
+    context = combine_heads(context)  # (B, T_enc, H * Dh)
+    attn_output = context @ W_o  # (B, T_enc, D)
+    return attn_output, weights
 
 
 def decoder_block_forward(
@@ -124,6 +137,34 @@ def decoder_block_forward(
         Y2 = layer_norm(Y1 + cross_attention(Y1, encoder_states))
         Y3 = layer_norm(Y2 + position_wise_ffn(Y2))
     """
-    TODO(
-        "Implement masked self-attention, cross-attention, FFN, with residual+layernorm after each."
+    Q = split_heads(Y @ weights.self_W_q, num_heads)
+    K = split_heads(Y @ weights.self_W_k, num_heads)
+    scores = Q @ K.transpose(-1, -2) / math.sqrt(K.shape[-1])
+    mask = torch.triu(
+        torch.ones(scores.shape[-1], scores.shape[-1], dtype=torch.bool), diagonal=1
     )
+    scores = scores.masked_fill(mask, float("-inf"))
+    attn_weights = torch.softmax(scores, dim=-1)
+    V = split_heads(Y @ weights.self_W_v, num_heads)
+    context = attn_weights @ V
+    context = combine_heads(context)
+    msa_output = context @ weights.self_W_o
+    Y1 = F.layer_norm(Y + msa_output, (Y.shape[-1],))
+
+    csa_output = cross_attention(
+        Y1,
+        encoder_states,
+        weights.cross_W_q,
+        weights.cross_W_k,
+        weights.cross_W_v,
+        weights.cross_W_o,
+        num_heads,
+    )[0]
+    Y2 = F.layer_norm(Y1 + csa_output, (Y1.shape[-1],))
+
+    lin = Y2 @ weights.W1 + weights.b1
+    relu = lin.clamp(min=0)
+    ffn_output = relu @ weights.W2 + weights.b2
+    Y3 = F.layer_norm(Y2 + ffn_output, (Y2.shape[-1],))
+
+    return Y3
