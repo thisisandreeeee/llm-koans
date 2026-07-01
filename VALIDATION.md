@@ -1,6 +1,6 @@
 # Validation
 
-The test suite now has 76 tests across 13 koan files.
+The test suite now has 76 tests across 14 koan files.
 
 I validated that the suite can be collected against the intended learner-facing TODO state across the focused modules in `src/llm_koans/`.
 
@@ -20,12 +20,16 @@ For the fine-tuning koans (`08`–`12`):
 - learner-facing run: `17 failed` at `KoanIncomplete` TODOs
 - temporary solved copy: `17 passed`
 
-For the encoder/decoder block koan (`06`), now extended with MoE:
+For the encoder/decoder block koan (`06`):
 
-- anchor: Koan 06 is the most suitable concept to extend because MoE replaces the position-wise FFN sublayer inside an attention block, rather than changing the attention mechanism itself
-- learner-facing run: `8 failed` at `KoanIncomplete` TODOs
-- temporary solved run: `8 passed`
-- added exercises: router logits, top-1 expert routing, routed expert FFN, MoE encoder block
+- learner-facing run: `4 failed` at `KoanIncomplete` TODOs
+- temporary solved copy: `4 passed`
+
+For the mixture-of-experts koan (`13`):
+
+- builds on the block mechanics from Koan 06: MoE replaces the position-wise FFN sublayer
+- learner-facing run: `4 failed` at `KoanIncomplete` TODOs
+- temporary solved run: `4 passed`
 
 Expected state after completing all TODOs:
 
