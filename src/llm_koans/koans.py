@@ -40,15 +40,10 @@ from .koan_05_masks import apply_attention_mask, causal_mask, masked_attention_w
 from .koan_06_blocks import (
     DecoderBlockWeights,
     EncoderBlockWeights,
-    MoEEncoderBlockWeights,
     cross_attention,
     decoder_block_forward,
     encoder_block_forward,
-    expert_router_logits,
-    moe_encoder_block_forward,
     position_wise_ffn,
-    routed_expert_ffn,
-    top1_expert_routing,
 )
 from .koan_07_training import (
     TinyEncoder,
@@ -80,6 +75,13 @@ from .koan_10_distillation import (
 )
 from .koan_11_dpo import dpo_loss, dpo_step, sequence_logprobs
 from .koan_12_eval_gated import accept_candidate_if_improves, classification_accuracy
+from .koan_13_moe import (
+    MoEEncoderBlockWeights,
+    expert_router_logits,
+    moe_encoder_block_forward,
+    routed_expert_ffn,
+    top1_expert_routing,
+)
 
 __all__ = [
     "DecoderBlockWeights",

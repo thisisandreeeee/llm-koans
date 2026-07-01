@@ -46,6 +46,7 @@ llm-koans/
 │   ├── koan_10_distillation.py
 │   ├── koan_11_dpo.py
 │   ├── koan_12_eval_gated.py
+│   ├── koan_13_moe.py
 │   ├── common.py                  # Shared helpers, no koan prefix
 │   └── koans.py                   # Stable public API used by tests
 ├── tests/                         # Tests verify each koan
@@ -91,6 +92,7 @@ pytest tests/test_09_lora_lifecycle.py -q
 pytest tests/test_10_distillation.py -q
 pytest tests/test_11_dpo.py -q
 pytest tests/test_12_eval_gated.py -q
+pytest tests/test_13_moe.py -q
 ```
 
 Or use the helper:
