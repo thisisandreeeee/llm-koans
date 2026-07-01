@@ -8,14 +8,20 @@ order is visible in the file tree. Tests import this module as
 from __future__ import annotations
 
 from .common import KoanIncomplete, TODO
-from .koan_00_matmul_intuition import (
+from .koan_00_pytorch_fundamentals import (
     batched_linear_projection,
     batch_specific_linear_projection,
     matmul_matrix_matrix,
     matmul_matrix_vector,
     matmul_vector_dot,
+    merge_heads_after_attention,
+    name_axes,
     pairwise_dot_products,
+    prepare_for_cross_entropy,
+    softmax_over_choices,
     split_batch_and_matrix_dims,
+    split_heads_for_attention,
+    training_step,
 )
 from .koan_01_shapes import dot_product, name_shape, project_sequence, project_token
 from .koan_02_attention_scores import (
@@ -110,12 +116,15 @@ __all__ = [
     "matmul_matrix_matrix",
     "matmul_matrix_vector",
     "matmul_vector_dot",
+    "merge_heads_after_attention",
     "merge_lora_linear",
     "multi_head_self_attention",
+    "name_axes",
     "name_shape",
     "pairwise_dot_products",
     "parameter_delta_norm",
     "position_wise_ffn",
+    "prepare_for_cross_entropy",
     "project_sequence",
     "project_token",
     "scaled_scores",
@@ -124,8 +133,11 @@ __all__ = [
     "sft_step",
     "single_head_self_attention",
     "softmax_last_dim",
+    "softmax_over_choices",
     "split_batch_and_matrix_dims",
     "split_heads",
+    "split_heads_for_attention",
     "supervised_finetune_step",
     "train_one_step",
+    "training_step",
 ]

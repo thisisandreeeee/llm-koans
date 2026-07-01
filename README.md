@@ -32,7 +32,7 @@ The training exercises are informed by *LLMs in Production* by Christopher Brous
 ```text
 llm-koans/
 ├── src/llm_koans/                 # You edit the focused koan modules here
-│   ├── koan_00_matmul_intuition.py
+│   ├── koan_00_pytorch_fundamentals.py
 │   ├── koan_01_shapes.py
 │   ├── koan_02_attention_scores.py
 │   ├── koan_03_self_attention.py
