@@ -35,7 +35,11 @@ from .koan_03_self_attention import (
     self_attention_for_one_query,
     single_head_self_attention,
 )
-from .koan_04_multihead_attention import combine_heads, multi_head_self_attention, split_heads
+from .koan_04_multihead_attention import (
+    combine_heads,
+    multi_head_self_attention,
+    split_heads,
+)
 from .koan_05_masks import apply_attention_mask, causal_mask, masked_attention_weights
 from .koan_06_blocks import (
     DecoderBlockWeights,

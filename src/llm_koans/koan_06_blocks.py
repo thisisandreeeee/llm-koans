@@ -9,7 +9,9 @@ from torch import Tensor
 from .common import TODO
 
 
-def position_wise_ffn(X: Tensor, W1: Tensor, b1: Tensor, W2: Tensor, b2: Tensor) -> Tensor:
+def position_wise_ffn(
+    X: Tensor, W1: Tensor, b1: Tensor, W2: Tensor, b2: Tensor
+) -> Tensor:
     """Apply the same two-layer feed-forward network to every token.
 
     X:  (..., D)
@@ -51,7 +53,20 @@ class DecoderBlockWeights:
     b2: Tensor
 
 
-def encoder_block_forward(X: Tensor, weights: EncoderBlockWeights, num_heads: int) -> Tensor:
+def split_heads(X: Tensor, num_heads: int) -> Tensor:
+    B, T, D = X.shape
+    Dh = D // num_heads
+    return X.reshape(B, T, num_heads, Dh).transpose(1, 2)
+
+
+def combine_heads(X: Tensor) -> Tensor:
+    B, H, T, Dh = X.shape
+    return X.transpose(1, 2).reshape(B, T, H * Dh)
+
+
+def encoder_block_forward(
+    X: Tensor, weights: EncoderBlockWeights, num_heads: int
+) -> Tensor:
     """A minimal post-norm encoder block.
 
     The block is:
@@ -60,7 +75,19 @@ def encoder_block_forward(X: Tensor, weights: EncoderBlockWeights, num_heads: in
 
     This uses functional layer_norm without trainable gamma/beta to keep the koan focused.
     """
-    TODO("Implement attention -> residual+layernorm -> FFN -> residual+layernorm.")
+    Q = split_heads(X @ weights.W_q, num_heads)  # (B, H, T, Dh)
+    K = split_heads(X @ weights.W_k, num_heads)  # (B, H, T, Dh)
+    scores = Q @ K.transpose(-1, -2) / math.sqrt(K.shape[-1])  # (B, H, T, T)
+    attn_weights = torch.softmax(scores, dim=-1)  # (B, H, T, T)
+    V = split_heads(X @ weights.W_v, num_heads)  # (B, H, T, Dh)
+    context = combine_heads(attn_weights @ V)  # (B, T, H * Dh)
+    attn_output = context @ weights.W_o  # (B, T, D)
+    X1 = F.layer_norm(X + attn_output, (X.shape[-1],))
+    lin = X1 @ weights.W1 + weights.b1
+    relu = lin.clamp(min=0)
+    ffn_output = relu @ weights.W2 + weights.b2
+    X2 = F.layer_norm(X1 + ffn_output, (X1.shape[-1],))
+    return X2
 
 
 def cross_attention(
@@ -97,4 +124,6 @@ def decoder_block_forward(
         Y2 = layer_norm(Y1 + cross_attention(Y1, encoder_states))
         Y3 = layer_norm(Y2 + position_wise_ffn(Y2))
     """
-    TODO("Implement masked self-attention, cross-attention, FFN, with residual+layernorm after each.")
+    TODO(
+        "Implement masked self-attention, cross-attention, FFN, with residual+layernorm after each."
+    )
