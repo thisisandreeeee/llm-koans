@@ -12,6 +12,7 @@ The koans teach the core mechanics behind modern LLMs:
 - **Softmax** = converts raw scores into positive weights that sum to 1.
 - **Context vector** = a weighted blend of values; the token after gathering context.
 - **Encoder/decoder blocks** = the classic Transformer building blocks.
+- **Mixture of Experts (MoE)** = replace the dense FFN sublayer with a router and multiple token-local FFN experts.
 - **Transformer assembly** = compose nn.Embedding, nn.TransformerEncoder/Decoder, and task heads into GPT‑style, BERT‑style, and T5‑style architectures from the same building blocks.
 - **Training loop** = shift logits for next-token prediction, compute loss, backprop, step.
 - **SFT data formatting** = apply a chat template and mask prompt tokens out of the loss.
