@@ -115,15 +115,22 @@ You will implement:
 - `encoder_block_forward`
 - `cross_attention`
 - `decoder_block_forward`
+- `expert_router_logits`
+- `top1_expert_routing`
+- `routed_expert_ffn`
+- `moe_encoder_block_forward`
 
 Main ideas:
 
 ```text
 attention = tokens talk
 FFN       = each token processes itself
+MoE       = route each token to one of many FFNs
 encoder   = read
 decoder   = write
 ```
+
+MoE extends this same block: keep the attention and residual structure, then replace the single dense FFN sublayer with a router plus multiple token-local FFN experts. It is not really “more attention”; the router scores each token against experts, picks the top expert, runs that token through the selected FFN, and scales the result by the router gate.
 
 ## 07. Assembling and training transformer variants
 
