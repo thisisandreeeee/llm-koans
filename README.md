@@ -1,6 +1,6 @@
 # LLM Koans
 
-A hands-on set of practical Python koans for building intuition about the attention, Transformer, and training mechanics behind LLMs.
+A hands-on set of practical Python koans for building intuition about the attention, Transformer, training, and chatbot runtime mechanics behind LLMs.
 
 The koans teach the core mechanics behind modern LLMs:
 
@@ -21,6 +21,7 @@ The koans teach the core mechanics behind modern LLMs:
 - **Distillation** = train a smaller student from a teacher's softened output distribution.
 - **Preference tuning** = use chosen-vs-rejected examples to train DPO-style policy updates.
 - **Evaluation gates** = accept a fine-tune only if it clears validation thresholds.
+- **Tool calling** = expose function schemas, execute requested Python tools, and feed results back to the model.
 
 The attention exercises are inspired by the step-by-step structure in Sebastian Raschka's article, "Understanding and Coding the Self-Attention Mechanism of Large Language Models From Scratch":
 
@@ -47,6 +48,7 @@ llm-koans/
 │   ├── koan_11_dpo.py
 │   ├── koan_12_eval_gated.py
 │   ├── koan_13_moe.py
+│   ├── koan_14_tool_calling.py
 │   ├── common.py                  # Shared helpers, no koan prefix
 │   └── koans.py                   # Stable public API used by tests
 ├── tests/                         # Tests verify each koan
@@ -93,6 +95,7 @@ pytest tests/test_10_distillation.py -q
 pytest tests/test_11_dpo.py -q
 pytest tests/test_12_eval_gated.py -q
 pytest tests/test_13_moe.py -q
+pytest tests/test_14_tool_calling.py -q
 ```
 
 Or use the helper:

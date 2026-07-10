@@ -1,6 +1,6 @@
 # Validation
 
-The test suite now has 76 tests across 14 koan files.
+The test suite now has 81 tests across 15 koan files.
 
 I validated that the suite can be collected against the intended learner-facing TODO state across the focused modules in `src/llm_koans/`.
 
@@ -31,6 +31,12 @@ For the mixture-of-experts koan (`13`):
 - learner-facing run: `4 failed` at `KoanIncomplete` TODOs
 - temporary solved run: `4 passed`
 
+For the tool-calling koan (`14`):
+
+- teaches the minimal function-calling chatbot loop: schema -> assistant tool call -> Python dispatch -> tool message -> final assistant answer
+- learner-facing run: `5 failed` at `KoanIncomplete` TODOs
+- temporary solved run: `5 passed`
+
 Expected state after completing all TODOs:
 
-- `76 passed`
+- `81 passed`

@@ -86,6 +86,12 @@ from .koan_13_moe import (
     routed_expert_ffn,
     top1_expert_routing,
 )
+from .koan_14_tool_calling import (
+    execute_tool_call,
+    make_tool_schema,
+    parse_tool_arguments,
+    run_tool_calling_chat,
+)
 
 __all__ = [
     "DecoderBlockWeights",
@@ -121,10 +127,12 @@ __all__ = [
     "dpo_step",
     "encode_chat_messages",
     "encoder_block_forward",
+    "execute_tool_call",
     "expert_router_logits",
     "freeze_base_for_classifier_tuning",
     "load_lora_adapter_state",
     "lora_adapter_state",
+    "make_tool_schema",
     "masked_attention_weights",
     "matmul_matrix_matrix",
     "matmul_matrix_vector",
@@ -137,11 +145,13 @@ __all__ = [
     "name_shape",
     "pairwise_dot_products",
     "parameter_delta_norm",
+    "parse_tool_arguments",
     "position_wise_ffn",
     "prepare_for_cross_entropy",
     "project_sequence",
     "project_token",
     "routed_expert_ffn",
+    "run_tool_calling_chat",
     "scaled_scores",
     "self_attention_for_one_query",
     "sequence_logprobs",
