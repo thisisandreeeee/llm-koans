@@ -253,3 +253,23 @@ attention structure stays the same
 ```
 
 This koan builds on the block mechanics from Koan 06. MoE is not "more attention" — it replaces the position-wise FFN sublayer after attention. The router scores each token against experts, picks the top expert, runs that token through the selected FFN, and scales the result by the router gate.
+
+## 14. Tool calling for a function-calling chatbot
+
+You will implement:
+
+- `make_tool_schema`
+- `parse_tool_arguments`
+- `execute_tool_call`
+- `run_tool_calling_chat`
+
+Main idea:
+
+```text
+schema tells the model what exists
+assistant tool_call asks your app to run it
+tool message gives the result back
+assistant final answer uses that result
+```
+
+This koan strips tool calling down to the runtime loop. The model does not execute tools. It emits a structured request. Your chatbot parses JSON arguments, dispatches to a registered Python function, appends a `role="tool"` result with the original `tool_call_id`, and calls the model again for final text.
