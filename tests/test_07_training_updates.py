@@ -32,6 +32,7 @@ def test_A_causal_lm_is_masked_so_future_tokens_do_not_leak():
 def test_A_train_one_step_updates_parameters_and_returns_scalar_loss():
     torch.manual_seed(15)
     model = K.TinyTransformer(vocab_size=16, d_model=16, nhead=4, num_layers=1, max_seq_len=32)
+    model.eval()
     optimizer = torch.optim.AdamW(model.parameters(), lr=0.05)
     token_ids = torch.tensor([
         [1, 2, 3, 4],
@@ -39,12 +40,16 @@ def test_A_train_one_step_updates_parameters_and_returns_scalar_loss():
         [1, 1, 2, 2],
     ])
 
+    expected = torch.nn.functional.cross_entropy(
+        model(token_ids)[:, :-1].reshape(-1, 16), token_ids[:, 1:].reshape(-1)
+    )
     before = snapshot(model)
     loss = K.train_one_step(model, optimizer, token_ids)
     after = snapshot(model)
 
     assert loss.ndim == 0
     assert loss.item() > 0
+    assert torch.allclose(loss, expected)
     assert K.parameter_delta_norm(before, after) > 0.0
 
 

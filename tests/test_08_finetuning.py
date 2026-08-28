@@ -40,6 +40,17 @@ def test_sft_labels_train_only_on_assistant_response_tokens():
     assert torch.equal(labels, torch.tensor([-100, -100, -100, -100, 5, 6, 3]))
 
 
+def test_sft_labels_cover_multiple_assistant_turns_only():
+    input_ids = torch.tensor([1, 4, 3, 2, 5, 3, 1, 4, 3, 2, 6, 3])
+
+    labels = K.assistant_only_labels(input_ids, assistant_token_id=2, eos_token_id=3)
+
+    expected = torch.tensor(
+        [-100, -100, -100, -100, 5, 3, -100, -100, -100, -100, 6, 3]
+    )
+    assert torch.equal(labels, expected)
+
+
 def test_sft_step_uses_shifted_next_token_loss_and_ignores_prompt_tokens():
     torch.manual_seed(22)
     model = K.TinyCausalLM(vocab_size=8, d_model=6)
@@ -47,12 +58,18 @@ def test_sft_step_uses_shifted_next_token_loss_and_ignores_prompt_tokens():
     input_ids = torch.tensor([[1, 4, 3, 2, 5, 6, 3]])
     labels = torch.tensor([[-100, -100, -100, -100, 5, 6, 3]])
 
+    expected = F.cross_entropy(
+        model(input_ids)[:, :-1].reshape(-1, 8),
+        labels[:, 1:].reshape(-1),
+        ignore_index=-100,
+    )
     before = snapshot(model)
     loss = K.sft_step(model, optimizer, input_ids, labels)
     after = snapshot(model)
 
     assert loss.ndim == 0
     assert loss.item() > 0
+    assert torch.allclose(loss, expected)
     assert any(changed(before, after, name) for name in before)
 
 

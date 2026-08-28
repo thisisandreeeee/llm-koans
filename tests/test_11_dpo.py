@@ -22,14 +22,15 @@ def test_sequence_logprobs_gathers_target_token_log_probs_and_masks_prompt():
             [3.0, 0.0, 0.0],
             [0.0, 3.0, 0.0],
             [0.0, 0.0, 3.0],
+            [3.0, 0.0, 0.0],
         ]
     ])
-    target_ids = torch.tensor([[0, 1, 2]])
-    mask = torch.tensor([[False, True, True]])
+    target_ids = torch.tensor([[0, 1, 2, 0]])
+    mask = torch.tensor([[False, True, False, True]])
 
     actual = K.sequence_logprobs(logits, target_ids, mask)
     expected_token_logps = F.log_softmax(logits, dim=-1).gather(-1, target_ids.unsqueeze(-1)).squeeze(-1)
-    expected = expected_token_logps[:, 1:].sum(dim=-1)
+    expected = expected_token_logps[:, 1:][mask[:, 1:]].sum(dim=-1)
 
     assert torch.allclose(actual, expected)
 
