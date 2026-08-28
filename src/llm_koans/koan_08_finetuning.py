@@ -50,7 +50,9 @@ class TinyCausalLM(nn.Module):
         return self.lm_head(torch.tanh(self.embedding(input_ids)))
 
 
-def encode_chat_messages(messages: list[ChatMessage], vocab: dict[str, int], eos_token: str = "<eos>") -> Tensor:
+def encode_chat_messages(
+    messages: list[ChatMessage], vocab: dict[str, int], eos_token: str = "<eos>"
+) -> Tensor:
     """Encode chat messages with explicit role tokens.
 
     Example format:
@@ -59,7 +61,9 @@ def encode_chat_messages(messages: list[ChatMessage], vocab: dict[str, int], eos
     This is intentionally simple, but it mirrors the real SFT requirement: apply
     the same chat template at training time that the model will see at inference.
     """
-    TODO("Append the role token, whitespace-tokenized content, and eos token for each message, then return a LongTensor.")
+    TODO(
+        "Append the role token, whitespace-tokenized content, and eos token for each message, then return a LongTensor."
+    )
 
 
 def assistant_only_labels(
@@ -74,7 +78,9 @@ def assistant_only_labels(
     the following content tokens and the closing EOS are labels. The assistant
     role token itself is still ignored.
     """
-    TODO("Return labels where only tokens after an assistant marker through eos are kept; all others are ignore_index.")
+    TODO(
+        "Return labels where only tokens after an assistant marker through eos are kept; all others are ignore_index."
+    )
 
 
 def sft_step(
@@ -89,12 +95,18 @@ def sft_step(
     logits[:, :-1] predict labels[:, 1:]. Use ignore_index so prompt tokens do
     not contribute to the loss.
     """
-    TODO("Shift logits/labels for next-token prediction, compute cross_entropy with ignore_index, backprop, step, return detached loss.")
+    TODO(
+        "Shift logits/labels for next-token prediction, compute cross_entropy with ignore_index, backprop, step, return detached loss."
+    )
 
 
-def freeze_base_for_classifier_tuning(model: TinyBaseTextClassifier) -> TinyBaseTextClassifier:
+def freeze_base_for_classifier_tuning(
+    model: TinyBaseTextClassifier,
+) -> TinyBaseTextClassifier:
     """Freeze the reusable base and leave only the classifier head trainable."""
-    TODO("Set embedding/encoder parameters frozen and classifier parameters trainable, then return model.")
+    TODO(
+        "Set embedding/encoder parameters frozen and classifier parameters trainable, then return model."
+    )
 
 
 def supervised_finetune_step(
@@ -104,4 +116,6 @@ def supervised_finetune_step(
     labels: Tensor,
 ) -> Tensor:
     """Run one supervised classifier fine-tuning step with cross-entropy loss."""
-    TODO("zero_grad, forward, cross_entropy, backward, optimizer.step, and return the detached loss.")
+    TODO(
+        "zero_grad, forward, cross_entropy, backward, optimizer.step, and return the detached loss."
+    )

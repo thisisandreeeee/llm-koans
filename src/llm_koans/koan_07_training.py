@@ -26,9 +26,12 @@ from .common import TODO
 
 # ── shared helpers ────────────────────────────────────────────────────────────
 
+
 def _causal_mask(seq_len: int, device: torch.device) -> Tensor:
     """Upper‑triangular mask: tokens cannot attend to future positions."""
-    return torch.triu(torch.ones(seq_len, seq_len, device=device) * float("-inf"), diagonal=1)
+    return torch.triu(
+        torch.ones(seq_len, seq_len, device=device) * float("-inf"), diagonal=1
+    )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -80,7 +83,9 @@ class TinyTransformer(nn.Module):
 
     def forward(self, token_ids: Tensor) -> Tensor:
         """Return next‑token logits of shape (batch, seq_len, vocab_size)."""
-        TODO("Embed tokens + positions, create causal mask, run transformer, project to vocab.")
+        TODO(
+            "Embed tokens + positions, create causal mask, run transformer, project to vocab."
+        )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -133,7 +138,9 @@ class TinyEncoder(nn.Module):
 
     def forward(self, token_ids: Tensor) -> Tensor:
         """Return class logits of shape (batch, num_classes)."""
-        TODO("Embed tokens + positions, run transformer WITHOUT a causal mask, mean pool, classify.")
+        TODO(
+            "Embed tokens + positions, run transformer WITHOUT a causal mask, mean pool, classify."
+        )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -206,7 +213,9 @@ class TinyEncoderDecoder(nn.Module):
 
     def forward(self, src_ids: Tensor, tgt_ids: Tensor) -> Tensor:
         """Return next‑token logits of shape (batch, tgt_seq_len, tgt_vocab_size)."""
-        TODO("Encode source (no mask), decode target with causal mask + cross-attention to encoder output, project to vocab.")
+        TODO(
+            "Encode source (no mask), decode target with causal mask + cross-attention to encoder output, project to vocab."
+        )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -224,9 +233,13 @@ def train_one_step(
     logits[:, :-1, :] should predict token_ids[:, 1:].  Use cross‑entropy loss,
     back‑propagate, and step the optimizer.
     """
-    TODO("Forward, shift logits and targets, compute cross-entropy, backward, step optimizer, return detached loss.")
+    TODO(
+        "Forward, shift logits and targets, compute cross-entropy, backward, step optimizer, return detached loss."
+    )
 
 
 def parameter_delta_norm(before: dict[str, Tensor], after: dict[str, Tensor]) -> float:
     """Return the total L2 norm of parameter changes between two state‑dict snapshots."""
-    TODO("Sum squared parameter differences across matching keys, then return sqrt(total).")
+    TODO(
+        "Sum squared parameter differences across matching keys, then return sqrt(total)."
+    )

@@ -10,9 +10,13 @@ from torch import Tensor, nn
 from .common import TODO
 
 
-def classification_accuracy(model: nn.Module, token_ids: Tensor, labels: Tensor) -> float:
+def classification_accuracy(
+    model: nn.Module, token_ids: Tensor, labels: Tensor
+) -> float:
     """Evaluate a classifier on a tiny validation batch."""
-    TODO("Run model under no_grad, argmax logits, and return mean accuracy as a Python float.")
+    TODO(
+        "Run model under no_grad, argmax logits, and return mean accuracy as a Python float."
+    )
 
 
 def accept_candidate_if_improves(
@@ -29,4 +33,6 @@ def accept_candidate_if_improves(
     keep it only if candidate accuracy is at least min_accuracy and improves over
     the baseline by min_delta. Otherwise restore the original state.
     """
-    TODO("Evaluate baseline and candidate states, keep candidate only if it clears both gates; otherwise restore baseline and return False.")
+    TODO(
+        "Evaluate baseline and candidate states, keep candidate only if it clears both gates; otherwise restore baseline and return False."
+    )

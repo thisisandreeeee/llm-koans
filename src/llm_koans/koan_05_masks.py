@@ -30,7 +30,9 @@ def apply_attention_mask(scores: Tensor, mask: Tensor | None) -> Tensor:
     scores can be (T, T), (B, H, T, T), or cross-attention-shaped.
     mask should broadcast over scores.
     """
-    TODO("Use scores.masked_fill(mask, float('-inf')), but return scores unchanged if mask is None.")
+    TODO(
+        "Use scores.masked_fill(mask, float('-inf')), but return scores unchanged if mask is None."
+    )
 
 
 def masked_attention_weights(Q: Tensor, K: Tensor, mask: Tensor | None) -> Tensor:

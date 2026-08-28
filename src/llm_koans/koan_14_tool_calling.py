@@ -75,7 +75,9 @@ def execute_tool_call(tool_call: ToolCall, tool_registry: ToolRegistry) -> ChatM
     The model asked for a function by name. Your app decides which real Python
     callable that name maps to.
     """
-    TODO("Dispatch the requested function and return a tool result message with role/tool_call_id/name/content.")
+    TODO(
+        "Dispatch the requested function and return a tool result message with role/tool_call_id/name/content."
+    )
 
 
 def run_tool_calling_chat(
@@ -96,4 +98,6 @@ def run_tool_calling_chat(
 
     Return the whole conversation so tests can inspect the exact message order.
     """
-    TODO("Loop over model calls, append assistant/tool messages, and stop when there are no tool_calls.")
+    TODO(
+        "Loop over model calls, append assistant/tool messages, and stop when there are no tool_calls."
+    )

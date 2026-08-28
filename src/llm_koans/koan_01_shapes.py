@@ -14,7 +14,9 @@ def name_shape(x: Tensor, names: tuple[str, ...]) -> dict[str, int]:
         X.shape == (6, 16), names == ("tokens", "features")
         -> {"tokens": 6, "features": 16}
     """
-    TODO("Create a dict mapping each provided dimension name to the matching x.shape value.")
+    TODO(
+        "Create a dict mapping each provided dimension name to the matching x.shape value."
+    )
 
 
 def dot_product(a: Tensor, b: Tensor) -> Tensor:

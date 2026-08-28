@@ -28,7 +28,9 @@ class LoRALinear(nn.Module):
 
         self.rank = rank
         self.alpha = alpha
-        self.A = nn.Parameter(torch.randn(base.in_features, rank) / math.sqrt(base.in_features))
+        self.A = nn.Parameter(
+            torch.randn(base.in_features, rank) / math.sqrt(base.in_features)
+        )
         self.B = nn.Parameter(torch.zeros(rank, base.out_features))
 
     def forward(self, x: Tensor) -> Tensor:
@@ -46,7 +48,9 @@ def add_lora_classifier_adapter(
     The base embedding and encoder should also be frozen. After this function,
     only the LoRA adapter matrices should require gradients.
     """
-    TODO("Freeze embedding/encoder, replace classifier with LoRALinear(model.classifier, rank, alpha), return model.")
+    TODO(
+        "Freeze embedding/encoder, replace classifier with LoRALinear(model.classifier, rank, alpha), return model."
+    )
 
 
 def lora_adapter_state(layer: LoRALinear) -> dict[str, Tensor]:
@@ -54,11 +58,17 @@ def lora_adapter_state(layer: LoRALinear) -> dict[str, Tensor]:
     TODO("Return detached clones for A and B only, not the frozen base weight/bias.")
 
 
-def load_lora_adapter_state(layer: LoRALinear, adapter_state: dict[str, Tensor]) -> LoRALinear:
+def load_lora_adapter_state(
+    layer: LoRALinear, adapter_state: dict[str, Tensor]
+) -> LoRALinear:
     """Load a saved adapter artifact into an existing LoRA layer."""
-    TODO("Copy adapter_state['A'] and adapter_state['B'] into layer.A and layer.B without tracking gradients, then return layer.")
+    TODO(
+        "Copy adapter_state['A'] and adapter_state['B'] into layer.A and layer.B without tracking gradients, then return layer."
+    )
 
 
 def merge_lora_linear(layer: LoRALinear) -> nn.Linear:
     """Merge a LoRA layer into one ordinary Linear layer for simpler deployment."""
-    TODO("Create nn.Linear, set weight to frozen weight + transposed scaled LoRA delta, copy bias, and return it.")
+    TODO(
+        "Create nn.Linear, set weight to frozen weight + transposed scaled LoRA delta, copy bias, and return it."
+    )

@@ -168,7 +168,9 @@ def pairwise_dot_products(left: Tensor, right: Tensor) -> Tensor:
     Rule: transpose when the dimension you want to dot-product over is not
     in the right place.  In attention, you dot-product over D, not over T.
     """
-    TODO("Transpose the last two dims of right, then matmul: left @ right.transpose(-2, -1).")
+    TODO(
+        "Transpose the last two dims of right, then matmul: left @ right.transpose(-2, -1)."
+    )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

@@ -9,13 +9,17 @@ import torch.nn.functional as F
 from .common import TODO
 
 
-def sequence_logprobs(logits: Tensor, target_ids: Tensor, mask: Tensor | None = None) -> Tensor:
+def sequence_logprobs(
+    logits: Tensor, target_ids: Tensor, mask: Tensor | None = None
+) -> Tensor:
     """Return total log-probability of each target sequence.
 
     logits has shape (B, T, V), target_ids has shape (B, T). If mask is given,
     only positions where mask is True contribute to the sequence score.
     """
-    TODO("Gather log_softmax(logits) at target_ids, optionally mask positions, then sum over time.")
+    TODO(
+        "Gather log_softmax(logits) at target_ids, optionally mask positions, then sum over time."
+    )
 
 
 def dpo_loss(
@@ -30,7 +34,9 @@ def dpo_loss(
     DPO increases the policy's chosen-vs-rejected log-probability gap relative to
     a frozen reference model, without training a separate reward model.
     """
-    TODO("Compute beta * ((policy chosen-rejected gap) - (reference chosen-rejected gap)), then mean -logsigmoid.")
+    TODO(
+        "Compute beta * ((policy chosen-rejected gap) - (reference chosen-rejected gap)), then mean -logsigmoid."
+    )
 
 
 def dpo_step(
@@ -48,4 +54,6 @@ def dpo_step(
     The tensors include prompt + completion. The masks should mark completion
     tokens only, so prompt likelihood does not become the preference signal.
     """
-    TODO("Compute policy/reference sequence logprobs for chosen/rejected, use dpo_loss, update only policy, return detached loss.")
+    TODO(
+        "Compute policy/reference sequence logprobs for chosen/rejected, use dpo_loss, update only policy, return detached loss."
+    )
