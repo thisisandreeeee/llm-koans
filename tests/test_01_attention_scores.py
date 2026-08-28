@@ -1,3 +1,5 @@
+"""Koan 01 tests: scaled attention scores."""
+
 import math
 
 import torch

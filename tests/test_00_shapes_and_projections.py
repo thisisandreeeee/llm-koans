@@ -1,6 +1,14 @@
+"""Koan 00 tests: tensor shapes and projections."""
+
 import torch
 
 from llm_koans import koans as K
+
+
+def test_split_batch_and_matrix_dims_separates_batch_axes_from_matrix_axes():
+    assert K.split_batch_and_matrix_dims((5, 7)) == ((), (5, 7))
+    assert K.split_batch_and_matrix_dims((2, 5, 7)) == ((2,), (5, 7))
+    assert K.split_batch_and_matrix_dims((2, 4, 5, 7)) == ((2, 4), (5, 7))
 
 
 def test_name_shape_teaches_named_dimensions():

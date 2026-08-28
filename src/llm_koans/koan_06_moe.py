@@ -1,4 +1,4 @@
-"""Koan 13: mixture-of-experts feed-forward layers."""
+"""Koan 06: mixture-of-experts feed-forward layers."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""Koan 02: attention scores and weights."""
+"""Koan 01: attention scores and weights."""
 
 from __future__ import annotations
 

@@ -1,3 +1,5 @@
+"""Koan 05 tests: encoder and decoder blocks."""
+
 import math
 
 import torch

@@ -1,6 +1,6 @@
 # LLM Koans
 
-A hands-on set of practical Python koans for building intuition about the attention, Transformer, training, and chatbot runtime mechanics behind LLMs.
+A hands-on set of practical Python koans for building intuition about attention, Transformers, and LLM training mechanics.
 
 The koans teach the core mechanics behind modern LLMs:
 
@@ -20,8 +20,6 @@ The koans teach the core mechanics behind modern LLMs:
 - **LoRA/PEFT lifecycle** = train, save/load, and merge small low-rank adapters over a frozen base.
 - **Distillation** = train a smaller student from a teacher's softened output distribution.
 - **Preference tuning** = use chosen-vs-rejected examples to train DPO-style policy updates.
-- **Evaluation gates** = accept a fine-tune only if it clears validation thresholds.
-- **Tool calling** = expose function schemas, execute requested Python tools, and feed results back to the model.
 
 The attention exercises are inspired by the step-by-step structure in Sebastian Raschka's article, "Understanding and Coding the Self-Attention Mechanism of Large Language Models From Scratch":
 
@@ -34,21 +32,18 @@ The training exercises are informed by *LLMs in Production* by Christopher Brous
 ```text
 llm-koans/
 ├── src/llm_koans/                 # You edit the focused koan modules here
-│   ├── koan_00_pytorch_fundamentals.py
-│   ├── koan_01_shapes.py
-│   ├── koan_02_attention_scores.py
-│   ├── koan_03_self_attention.py
-│   ├── koan_04_multihead_attention.py
-│   ├── koan_05_masks.py
-│   ├── koan_06_blocks.py
+│   ├── koan_00_shapes_and_projections.py
+│   ├── koan_01_attention_scores.py
+│   ├── koan_02_self_attention.py
+│   ├── koan_03_multihead_attention.py
+│   ├── koan_04_masks.py
+│   ├── koan_05_blocks.py
+│   ├── koan_06_moe.py
 │   ├── koan_07_training.py
 │   ├── koan_08_finetuning.py
 │   ├── koan_09_lora_lifecycle.py
 │   ├── koan_10_distillation.py
 │   ├── koan_11_dpo.py
-│   ├── koan_12_eval_gated.py
-│   ├── koan_13_moe.py
-│   ├── koan_14_tool_calling.py
 │   ├── common.py                  # Shared helpers, no koan prefix
 │   └── koans.py                   # Stable public API used by tests
 ├── tests/                         # Tests verify each koan
@@ -81,21 +76,18 @@ At first, many tests will fail because the focused modules in `src/llm_koans/` c
 Work through the tests in order:
 
 ```bash
-pytest tests/test_00_matmul_intuition.py -q
-pytest tests/test_01_shapes_and_projections.py -q
-pytest tests/test_02_attention_scores.py -q
-pytest tests/test_03_self_attention.py -q
-pytest tests/test_04_multihead_attention.py -q
-pytest tests/test_05_masks_and_decoder_attention.py -q
-pytest tests/test_06_encoder_decoder_blocks.py -q
+pytest tests/test_00_shapes_and_projections.py -q
+pytest tests/test_01_attention_scores.py -q
+pytest tests/test_02_self_attention.py -q
+pytest tests/test_03_multihead_attention.py -q
+pytest tests/test_04_masks_and_decoder_attention.py -q
+pytest tests/test_05_encoder_decoder_blocks.py -q
+pytest tests/test_06_moe.py -q
 pytest tests/test_07_training_updates.py -q
 pytest tests/test_08_finetuning.py -q
 pytest tests/test_09_lora_lifecycle.py -q
 pytest tests/test_10_distillation.py -q
 pytest tests/test_11_dpo.py -q
-pytest tests/test_12_eval_gated.py -q
-pytest tests/test_13_moe.py -q
-pytest tests/test_14_tool_calling.py -q
 ```
 
 Or use the helper:

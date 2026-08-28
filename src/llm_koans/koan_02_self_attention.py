@@ -1,4 +1,4 @@
-"""Koan 03: self-attention and context vectors."""
+"""Koan 02: self-attention and context vectors."""
 
 from __future__ import annotations
 

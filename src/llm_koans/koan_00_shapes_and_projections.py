@@ -1,10 +1,26 @@
-"""Koan 01: shapes and projections."""
+"""Koan 00: tensor shapes and projections.
+
+Learn the minimum PyTorch matrix mechanics needed for attention: distinguish
+batch axes from matrix axes, name tensor dimensions, compare vectors with a dot
+product, and project one token or a whole sequence.
+"""
 
 from __future__ import annotations
 
 from torch import Tensor
 
 from .common import TODO
+
+
+def split_batch_and_matrix_dims(
+    shape: tuple[int, ...],
+) -> tuple[tuple[int, ...], tuple[int, ...]]:
+    """Separate batch axes from the final two matrix axes.
+
+    PyTorch matmul treats the final two axes as a matrix and every earlier axis
+    as batch: ``(..., rows, shared) @ (..., shared, cols)``.
+    """
+    TODO("Return (shape[:-2], shape[-2:]).")
 
 
 def name_shape(x: Tensor, names: tuple[str, ...]) -> dict[str, int]:
