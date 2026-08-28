@@ -112,5 +112,6 @@ Include the concept, what you hope to learn, and (if you have one) a small examp
 
 - [ ] Positional encodings / RoPE
 - [ ] Autoregressive generation and sampling
+- [ ] RMSNorm + SwiGLU
 - [ ] KV cache
 - [ ] Grouped query attention
