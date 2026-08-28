@@ -1,4 +1,4 @@
-"""Koan 04: multi-head attention."""
+"""Koan 03: multi-head attention."""
 
 from __future__ import annotations
 

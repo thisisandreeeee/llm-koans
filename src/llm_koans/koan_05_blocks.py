@@ -1,4 +1,4 @@
-"""Koan 06: encoder and decoder blocks."""
+"""Koan 05: encoder and decoder blocks."""
 
 from __future__ import annotations
 
@@ -75,19 +75,7 @@ def encoder_block_forward(
 
     This uses functional layer_norm without trainable gamma/beta to keep the koan focused.
     """
-    Q = split_heads(X @ weights.W_q, num_heads)  # (B, H, T, Dh)
-    K = split_heads(X @ weights.W_k, num_heads)  # (B, H, T, Dh)
-    scores = Q @ K.transpose(-1, -2) / math.sqrt(K.shape[-1])  # (B, H, T, T)
-    attn_weights = torch.softmax(scores, dim=-1)  # (B, H, T, T)
-    V = split_heads(X @ weights.W_v, num_heads)  # (B, H, T, Dh)
-    context = combine_heads(attn_weights @ V)  # (B, T, H * Dh)
-    attn_output = context @ weights.W_o  # (B, T, D)
-    X1 = F.layer_norm(X + attn_output, (X.shape[-1],))
-    lin = X1 @ weights.W1 + weights.b1
-    relu = lin.clamp(min=0)
-    ffn_output = relu @ weights.W2 + weights.b2
-    X2 = F.layer_norm(X1 + ffn_output, (X1.shape[-1],))
-    return X2
+    TODO("Implement self-attention, FFN, and residual+layernorm after each.")
 
 
 def cross_attention(

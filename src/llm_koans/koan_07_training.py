@@ -1,8 +1,9 @@
 """Koan 07: assembling and training transformer variants.
 
-Koans 00–06 built attention mechanics by hand — Q/K/V projections, multi‑head
+Koans 00–05 built attention mechanics by hand — Q/K/V projections, multi‑head
 reshaping, scaled dot‑product scores, causal masks, encoder/decoder blocks, and
-layer‑norm residuals.  Those koans teach what happens inside the black box.
+layer‑norm residuals. Koan 06 then shows how MoE replaces a dense feed-forward
+sublayer. Those koans teach what happens inside the black box.
 
 This koan shows how a practitioner actually wires up transformers in PyTorch:
 use `nn` building blocks, compose them into real architectures, and run a

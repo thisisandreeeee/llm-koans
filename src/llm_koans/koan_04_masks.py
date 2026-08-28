@@ -1,4 +1,4 @@
-"""Koan 05: masks and decoder attention."""
+"""Koan 04: masks and decoder attention."""
 
 from __future__ import annotations
 
