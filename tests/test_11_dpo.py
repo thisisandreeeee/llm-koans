@@ -24,10 +24,11 @@ def test_sequence_logprobs_uses_previous_position_logits_and_masks_prompt():
             [0.0, 3.0, 0.0],
             [0.0, 0.0, 3.0],
             [3.0, 0.0, 0.0],
+            [0.0, 3.0, 0.0],
         ]
     ])
-    target_ids = torch.tensor([[0, 1, 2]])
-    mask = torch.tensor([[False, True, True]])
+    target_ids = torch.tensor([[0, 1, 2, 0]])
+    mask = torch.tensor([[False, True, False, True]])
 
     actual = K.sequence_logprobs(logits, target_ids, mask)
     high_token_logp = 3.0 - math.log(math.exp(3.0) + 2.0)
