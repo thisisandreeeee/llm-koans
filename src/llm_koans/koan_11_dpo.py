@@ -17,9 +17,12 @@ def sequence_logprobs(
     logits has shape (B, T, V), target_ids has shape (B, T). If mask is given,
     only positions where mask is True contribute to the sequence score.
     """
-    TODO(
-        "Accumulate the log-probabilities assigned to each sequence's target tokens, honoring the optional mask."
-    )
+    token_logps = F.log_softmax(logits, dim=-1).gather(
+        -1, target_ids.unsqueeze(-1)
+    ).squeeze(-1)[:, 1:]
+    if mask is not None:
+        token_logps = token_logps.masked_fill(~mask[:, 1:], 0)
+    return token_logps.sum(dim=-1)
 
 
 def dpo_loss(
@@ -34,9 +37,9 @@ def dpo_loss(
     DPO increases the policy's chosen-vs-rejected log-probability gap relative to
     a frozen reference model, without training a separate reward model.
     """
-    TODO(
-        "Compare the policy's preference margin with the reference model's margin, then form the DPO objective."
-    )
+    policy_gap = policy_chosen_logp - policy_rejected_logp
+    reference_gap = reference_chosen_logp - reference_rejected_logp
+    return -F.logsigmoid(beta * (policy_gap - reference_gap)).mean()
 
 
 def dpo_step(
@@ -54,6 +57,25 @@ def dpo_step(
     The tensors include prompt + completion. The masks should mark completion
     tokens only, so prompt likelihood does not become the preference signal.
     """
-    TODO(
-        "Evaluate both completions under policy and frozen reference, then optimize only the policy preference."
+    optimizer.zero_grad()
+    policy_chosen = sequence_logprobs(policy(prompt_chosen_ids), prompt_chosen_ids, chosen_mask)
+    policy_rejected = sequence_logprobs(
+        policy(prompt_rejected_ids), prompt_rejected_ids, rejected_mask
     )
+    with torch.no_grad():
+        reference_chosen = sequence_logprobs(
+            reference(prompt_chosen_ids), prompt_chosen_ids, chosen_mask
+        )
+        reference_rejected = sequence_logprobs(
+            reference(prompt_rejected_ids), prompt_rejected_ids, rejected_mask
+        )
+    loss = dpo_loss(
+        policy_chosen,
+        policy_rejected,
+        reference_chosen,
+        reference_rejected,
+        beta,
+    )
+    loss.backward()
+    optimizer.step()
+    return loss.detach()

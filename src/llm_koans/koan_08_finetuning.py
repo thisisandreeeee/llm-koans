@@ -61,9 +61,12 @@ def encode_chat_messages(
     This is intentionally simple, but it mirrors the real SFT requirement: apply
     the same chat template at training time that the model will see at inference.
     """
-    TODO(
-        "Preserve message order and boundaries while converting roles, content, and terminators through the vocabulary."
-    )
+    ids = []
+    for message in messages:
+        ids.append(vocab[f"<{message['role']}>" ])
+        ids.extend(vocab[token] for token in message["content"].split())
+        ids.append(vocab[eos_token])
+    return torch.tensor(ids, dtype=torch.long)
 
 
 def assistant_only_labels(
@@ -78,9 +81,16 @@ def assistant_only_labels(
     the following content tokens and the closing EOS are labels. The assistant
     role token itself is still ignored.
     """
-    TODO(
-        "Mark only assistant responses, including their terminators, as prediction targets."
-    )
+    labels = torch.full_like(input_ids, ignore_index)
+    assistant = False
+    for i, token in enumerate(input_ids.tolist()):
+        if token == assistant_token_id:
+            assistant = True
+        elif assistant:
+            labels[i] = token
+            if token == eos_token_id:
+                assistant = False
+    return labels
 
 
 def sft_step(
@@ -95,16 +105,27 @@ def sft_step(
     logits[:, :-1] predict labels[:, 1:]. Use ignore_index so prompt tokens do
     not contribute to the loss.
     """
-    TODO(
-        "Perform one causal-language-model update using the provided label mask, and return a detached loss."
+    optimizer.zero_grad()
+    logits = model(input_ids)
+    loss = F.cross_entropy(
+        logits[:, :-1].reshape(-1, logits.shape[-1]),
+        labels[:, 1:].reshape(-1),
+        ignore_index=ignore_index,
     )
+    loss.backward()
+    optimizer.step()
+    return loss.detach()
 
 
 def freeze_base_for_classifier_tuning(
     model: TinyBaseTextClassifier,
 ) -> TinyBaseTextClassifier:
     """Freeze the reusable base and leave only the classifier head trainable."""
-    TODO("Configure gradients so only the task-specific head can be updated.")
+    for parameter in model.parameters():
+        parameter.requires_grad = False
+    for parameter in model.classifier.parameters():
+        parameter.requires_grad = True
+    return model
 
 
 def supervised_finetune_step(
@@ -114,6 +135,8 @@ def supervised_finetune_step(
     labels: Tensor,
 ) -> Tensor:
     """Run one supervised classifier fine-tuning step with cross-entropy loss."""
-    TODO(
-        "Perform one classifier update from the batch and return a detached loss."
-    )
+    optimizer.zero_grad()
+    loss = F.cross_entropy(model(token_ids), labels)
+    loss.backward()
+    optimizer.step()
+    return loss.detach()

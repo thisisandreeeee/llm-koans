@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import torch
 from torch import Tensor
 
 from .common import TODO
@@ -14,7 +15,7 @@ def context_from_weights(weights: Tensor, V: Tensor) -> Tensor:
     V:       (..., T_key, d_v)
     output:  (..., T_query, d_v)
     """
-    TODO("For each query, form a weighted combination of the value vectors.")
+    return weights @ V
 
 
 def self_attention_for_one_query(
@@ -30,9 +31,8 @@ def self_attention_for_one_query(
         context: (d_v,)
         weights: (T,)
     """
-    TODO(
-        "Derive one score per key, normalize those scores, and use them to blend values."
-    )
+    weights = torch.softmax(query @ keys.T / query.shape[-1] ** 0.5, dim=-1)
+    return context_from_weights(weights, values), weights
 
 
 def single_head_self_attention(
@@ -49,6 +49,8 @@ def single_head_self_attention(
         context: (T, d_v)
         weights: (T, T)
     """
-    TODO(
-        "Create query, key, and value representations, then reuse the preceding attention ideas."
-    )
+    Q = X @ W_q.T
+    K = X @ W_k.T
+    V = X @ W_v.T
+    weights = torch.softmax(Q @ K.T / Q.shape[-1] ** 0.5, dim=-1)
+    return context_from_weights(weights, V), weights

@@ -4,9 +4,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+import torch
+import torch.nn.functional as F
 from torch import Tensor
 
 from .common import TODO
+from .koan_03_multihead_attention import multi_head_self_attention
+from .koan_04_masks import causal_mask
 
 
 def position_wise_ffn(
@@ -22,9 +26,7 @@ def position_wise_ffn(
 
     Intuition: attention lets tokens talk; FFN lets each token process itself.
     """
-    TODO(
-        "Apply a two-layer position-wise transformation with a nonlinearity between projections."
-    )
+    return torch.relu(X @ W1 + b1) @ W2 + b2
 
 
 @dataclass
@@ -77,9 +79,10 @@ def encoder_block_forward(
 
     This uses functional layer_norm without trainable gamma/beta to keep the koan focused.
     """
-    TODO(
-        "Follow the encoder stages above, wrapping each sublayer with its residual and normalization."
-    )
+    attn, _ = multi_head_self_attention(X, weights.W_q, weights.W_k, weights.W_v, weights.W_o, num_heads)
+    X1 = F.layer_norm(X + attn, (X.shape[-1],))
+    ffn = position_wise_ffn(X1, weights.W1, weights.b1, weights.W2, weights.b2)
+    return F.layer_norm(X1 + ffn, (X.shape[-1],))
 
 
 def cross_attention(
@@ -100,9 +103,12 @@ def cross_attention(
         output:  (B, T_dec, D)
         weights: (B, H, T_dec, T_enc)
     """
-    TODO(
-        "Let decoder positions query the encoder representations and collect the resulting context."
-    )
+    Q = split_heads(decoder_states @ W_q, num_heads)
+    K = split_heads(encoder_states @ W_k, num_heads)
+    V = split_heads(encoder_states @ W_v, num_heads)
+    scores = Q @ K.transpose(-2, -1) / Q.shape[-1] ** 0.5
+    weights = torch.softmax(scores, dim=-1)
+    return combine_heads(weights @ V) @ W_o, weights
 
 
 def decoder_block_forward(
@@ -118,6 +124,25 @@ def decoder_block_forward(
         Y2 = layer_norm(Y1 + cross_attention(Y1, encoder_states))
         Y3 = layer_norm(Y2 + position_wise_ffn(Y2))
     """
-    TODO(
-        "Follow the decoder stages above, preserving causal masking and encoder context in their respective sublayers."
+    self_attn, _ = multi_head_self_attention(
+        Y,
+        weights.self_W_q,
+        weights.self_W_k,
+        weights.self_W_v,
+        weights.self_W_o,
+        num_heads,
+        mask=causal_mask(Y.shape[1], Y.device),
     )
+    Y1 = F.layer_norm(Y + self_attn, (Y.shape[-1],))
+    cross_attn, _ = cross_attention(
+        Y1,
+        encoder_states,
+        weights.cross_W_q,
+        weights.cross_W_k,
+        weights.cross_W_v,
+        weights.cross_W_o,
+        num_heads,
+    )
+    Y2 = F.layer_norm(Y1 + cross_attn, (Y.shape[-1],))
+    ffn = position_wise_ffn(Y2, weights.W1, weights.b1, weights.W2, weights.b2)
+    return F.layer_norm(Y2 + ffn, (Y.shape[-1],))

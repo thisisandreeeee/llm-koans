@@ -4,9 +4,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+import torch
+import torch.nn.functional as F
 from torch import Tensor
 
 from .common import TODO
+from .koan_03_multihead_attention import multi_head_self_attention
 
 
 @dataclass
@@ -36,9 +39,7 @@ def expert_router_logits(X: Tensor, router_W: Tensor, router_b: Tensor) -> Tenso
     Intuition: attention decides which tokens to read from; the router decides
     which token-local FFN expert should process each token after attention.
     """
-    TODO(
-        "Produce one routing score per expert for each token without mixing token positions."
-    )
+    return X @ router_W + router_b
 
 
 def top1_expert_routing(router_logits: Tensor) -> tuple[Tensor, Tensor]:
@@ -53,9 +54,10 @@ def top1_expert_routing(router_logits: Tensor) -> tuple[Tensor, Tensor]:
     This is the tiny version of Switch Transformer routing: one token goes to
     one expert, and the chosen expert output is scaled by the router confidence.
     """
-    TODO(
-        "Turn routing scores into confidences, then return each token's strongest expert and its confidence."
-    )
+    probabilities = torch.softmax(router_logits, dim=-1)
+    expert_indices = probabilities.argmax(dim=-1)
+    expert_gates = probabilities.gather(-1, expert_indices.unsqueeze(-1)).squeeze(-1)
+    return expert_indices, expert_gates
 
 
 def routed_expert_ffn(
@@ -79,9 +81,17 @@ def routed_expert_ffn(
     Each expert is a normal two-layer position-wise FFN. The MoE difference is
     that tokens can choose different FFN parameters through the router.
     """
-    TODO(
-        "Send each token through its assigned expert's two-layer FFN, then restore the original layout."
-    )
+    output = torch.empty_like(X)
+    for expert_id in range(expert_W1.shape[0]):
+        mask = expert_indices == expert_id
+        if mask.any():
+            tokens = X[mask]
+            output[mask] = (
+                torch.relu(tokens @ expert_W1[expert_id] + expert_b1[expert_id])
+                @ expert_W2[expert_id]
+                + expert_b2[expert_id]
+            )
+    return output
 
 
 def moe_encoder_block_forward(
@@ -102,6 +112,17 @@ def moe_encoder_block_forward(
         expert_indices: (B, T)
         expert_gates:   (B, T)
     """
-    TODO(
-        "Follow the block stages above, scaling each selected expert's contribution by its routing confidence."
+    attn, _ = multi_head_self_attention(X, weights.W_q, weights.W_k, weights.W_v, weights.W_o, num_heads)
+    X1 = F.layer_norm(X + attn, (X.shape[-1],))
+    router_logits = expert_router_logits(X1, weights.router_W, weights.router_b)
+    expert_indices, gates = top1_expert_routing(router_logits)
+    expert_output = routed_expert_ffn(
+        X1,
+        expert_indices,
+        weights.expert_W1,
+        weights.expert_b1,
+        weights.expert_W2,
+        weights.expert_b2,
     )
+    output = F.layer_norm(X1 + expert_output * gates.unsqueeze(-1), (X.shape[-1],))
+    return output, expert_indices, gates
