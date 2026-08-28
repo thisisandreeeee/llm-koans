@@ -105,6 +105,7 @@ the earlier dimensions as batch dimensions:
 ## Suggest a koan
 
 Missing an LLM concept you would like to understand?
+
 [Open an issue](https://github.com/thisisandreeeee/llm-koans/issues/new) and suggest the next koan.
 Include the concept, what you hope to learn, and (if you have one) a small example that currently feels mysterious.
 
