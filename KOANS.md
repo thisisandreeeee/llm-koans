@@ -1,49 +1,30 @@
 # LLM Koan Learning Path
 
-The path builds from basic tensor operations to attention, Transformer blocks, and practical fine-tuning workflows.
+The path moves from essential tensor operations through attention and
+Transformer blocks, then into model training and adaptation.
 
-## 00. PyTorch matmul intuition
+## 00. Shapes and projections
 
 You will implement:
 
 - `split_batch_and_matrix_dims`
-- `matmul_vector_dot`
-- `matmul_matrix_vector`
-- `matmul_matrix_matrix`
-- `batched_linear_projection`
-- `batch_specific_linear_projection`
-- `pairwise_dot_products`
+- `name_shape`
+- `dot_product`
+- `project_token`
+- `project_sequence`
 
 Main idea:
 
 ```text
 last two dims = matrix
 earlier dims = batch
-shared inner dim disappears
+matmul transforms; dot compares
 ```
 
-This is the shape rule behind projections, batched projections, and attention
-scores. Learn this first and `Q @ K.transpose(-2, -1)` becomes much less spooky.
+This koan keeps only the PyTorch mechanics needed by the attention exercises.
+Tokens stay in rows, so projecting a sequence uses `X @ W.T`.
 
-## 01. Shapes and projections
-
-You will implement:
-
-- `dot_product`
-- `project_token`
-- `project_sequence`
-- `name_shape`
-
-Main idea:
-
-```text
-matmul transforms
- dot compares
-```
-
-A projection like `q = W_q @ x` creates a specialised view of a token. A dot product like `q · k` creates one relevance score.
-
-## 02. Attention scores
+## 01. Attention scores
 
 You will implement:
 
@@ -55,11 +36,11 @@ You will implement:
 Main idea:
 
 ```text
-Q @ K.T gives every query-token vs every key-token score.
+Q @ K.T gives every query-token vs. every key-token score.
 softmax turns those raw scores into weights.
 ```
 
-## 03. Self-attention
+## 02. Self-attention
 
 You will implement:
 
@@ -73,9 +54,10 @@ Main idea:
 weights @ V = gathered context
 ```
 
-The context vector is the token after it has gathered information from relevant tokens.
+The context vector is the token after gathering information from relevant
+tokens.
 
-## 04. Multi-head attention
+## 03. Multi-head attention
 
 You will implement:
 
@@ -86,16 +68,11 @@ You will implement:
 Main idea:
 
 ```text
-multiple heads = multiple learned ways to look at relationships
-```
-
-The common shape is:
-
-```text
 (B, T, D) -> (B, H, T, Dh)
+multiple heads = multiple learned views of token relationships
 ```
 
-## 05. Masks and decoder attention
+## 04. Masks and decoder attention
 
 You will implement:
 
@@ -103,11 +80,9 @@ You will implement:
 - `apply_attention_mask`
 - `masked_attention_weights`
 
-Main idea:
+Main idea: decoder self-attention must not look into the future.
 
-Decoder self-attention must not look into the future.
-
-## 06. Encoder and decoder blocks
+## 05. Encoder and decoder blocks
 
 You will implement:
 
@@ -125,29 +100,46 @@ encoder   = read
 decoder   = write
 ```
 
-## 07. Assembling and training transformer variants
+## 06. Mixture-of-experts blocks
 
 You will implement:
 
-- `TinyTransformer.forward` — GPT‑style causal LM
-- `TinyEncoder.forward` — BERT‑style bidirectional encoder
-- `TinyEncoderDecoder.forward` — T5‑style encoder‑decoder with cross‑attention
-- `train_one_step` — standard next‑token prediction loop
-- `parameter_delta_norm` — measure how much parameters moved
+- `expert_router_logits`
+- `top1_expert_routing`
+- `routed_expert_ffn`
+- `moe_encoder_block_forward`
 
 Main idea:
 
 ```text
-Exercise A:  nn.Embedding + position → causal mask → nn.TransformerEncoder → LM head
-Exercise B:  same blocks, no mask → mean pool → classifier
-Exercise C:  encoder (no mask) + decoder (causal + cross‑attention) → LM head
+dense FFN -> router + many FFN experts
+each token chooses one expert
+attention structure stays the same
 ```
 
-Koans 00–06 built attention mechanics by hand. This koan shows the
-practitioner taxonomy: three architectures that cover virtually every
-transformer in production, all using the same `nn` building blocks. If you
-understand what changes between them (the mask, the pooling, the
-cross‑attention target), you can reason about any transformer variant.
+MoE follows the dense block exercise because it changes the block's
+position-wise FFN, not its attention mechanism.
+
+## 07. Assembling and training Transformer variants
+
+You will implement:
+
+- `TinyTransformer.forward` — GPT-style causal LM
+- `TinyEncoder.forward` — BERT-style bidirectional encoder
+- `TinyEncoderDecoder.forward` — T5-style encoder-decoder
+- `train_one_step`
+- `parameter_delta_norm`
+
+Main idea:
+
+```text
+causal mask       -> decoder-style language model
+no causal mask    -> bidirectional encoder
+encoder + decoder -> sequence-to-sequence model
+```
+
+The earlier koans build Transformer mechanics by hand. This koan composes
+PyTorch `nn` building blocks into trainable model variants.
 
 ## 08. SFT data and supervised fine-tuning
 
@@ -166,7 +158,8 @@ chat messages -> template tokens -> assistant-only labels -> SFT loss
 base model -> frozen base + trainable head
 ```
 
-You start with the most common fine-tuning failure mode: wrong training signal. The koan makes prompt tokens disappear from the loss, then shows a small supervised head fine-tune where only the intended parameters move.
+The koan focuses on the most common fine-tuning failure mode: applying loss to
+the wrong tokens or updating the wrong parameters.
 
 ## 09. LoRA adapter lifecycle
 
@@ -182,13 +175,10 @@ Main idea:
 
 ```text
 frozen base output + low-rank adapter output = adapted model
-adapter artifact = A and B only
-merge for deployment = base weight + adapter delta
+save A and B only; optionally merge for deployment
 ```
 
-This koan turns LoRA from a buzzword into a concrete module lifecycle: train only the adapter, save only the adapter, load it onto a fresh base, and optionally merge it into a normal linear layer.
-
-## 10. Distillation fine-tuning
+## 10. Distillation
 
 You will implement:
 
@@ -202,7 +192,8 @@ Main idea:
 teacher logits -> softened distribution -> student update
 ```
 
-The student learns from the teacher's probability distribution, not only from hard labels. The koan verifies that the student changes while the teacher stays frozen.
+The student learns from both hard labels and the teacher's distribution over
+alternatives while the teacher remains frozen.
 
 ## 11. DPO preference fine-tuning
 
@@ -218,58 +209,5 @@ Main idea:
 policy chosen-vs-rejected gap > reference chosen-vs-rejected gap
 ```
 
-This koan uses prompt+completion sequences and masks the prompt so preference tuning is driven by completion tokens. The policy updates; the reference model stays frozen.
-
-## 12. Evaluation-gated fine-tuning
-
-You will implement:
-
-- `classification_accuracy`
-- `accept_candidate_if_improves`
-
-Main idea:
-
-```text
-fine-tune candidate -> validation gate -> keep or roll back
-```
-
-A fine-tune is not successful because training ran. It is successful only if it clears a task-specific validation gate without regressing the baseline.
-
-## 13. Mixture-of-Experts transformer blocks
-
-You will implement:
-
-- `expert_router_logits`
-- `top1_expert_routing`
-- `routed_expert_ffn`
-- `moe_encoder_block_forward`
-
-Main idea:
-
-```text
-dense FFN -> router + many FFN experts
-each token chooses one expert
-attention structure stays the same
-```
-
-This koan builds on the block mechanics from Koan 06. MoE is not "more attention" — it replaces the position-wise FFN sublayer after attention. The router scores each token against experts, picks the top expert, runs that token through the selected FFN, and scales the result by the router gate.
-
-## 14. Tool calling for a function-calling chatbot
-
-You will implement:
-
-- `make_tool_schema`
-- `parse_tool_arguments`
-- `execute_tool_call`
-- `run_tool_calling_chat`
-
-Main idea:
-
-```text
-schema tells the model what exists
-assistant tool_call asks your app to run it
-tool message gives the result back
-assistant final answer uses that result
-```
-
-This koan strips tool calling down to the runtime loop. The model does not execute tools. It emits a structured request. Your chatbot parses JSON arguments, dispatches to a registered Python function, appends a `role="tool"` result with the original `tool_call_id`, and calls the model again for final text.
+Completion masks keep prompt likelihood out of the preference signal. The
+policy updates while the reference model remains frozen.
