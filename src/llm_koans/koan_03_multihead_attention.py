@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import torch
 from torch import Tensor
 
 from .common import TODO
@@ -15,9 +16,8 @@ def split_heads(X: Tensor, num_heads: int) -> Tensor:
 
     The operation should not change the data order; it only reshapes and permutes.
     """
-    TODO(
-        "Separate model features into equal heads so each head sees the full sequence."
-    )
+    B, T, D = X.shape
+    return X.reshape(B, T, num_heads, D // num_heads).permute(0, 2, 1, 3)
 
 
 def combine_heads(X: Tensor) -> Tensor:
@@ -26,7 +26,8 @@ def combine_heads(X: Tensor) -> Tensor:
     X:      (B, H, T, Dh)
     return: (B, T, H * Dh)
     """
-    TODO("Reverse split_heads while preserving token and feature order.")
+    B, H, T, Dh = X.shape
+    return X.permute(0, 2, 1, 3).contiguous().reshape(B, T, H * Dh)
 
 
 def multi_head_self_attention(
@@ -53,6 +54,11 @@ def multi_head_self_attention(
         output:  (B, T, D)
         weights: (B, H, T, T)
     """
-    TODO(
-        "Apply self-attention independently per head, preserve optional masking, and restore model width."
-    )
+    Q = split_heads(X @ W_q, num_heads)
+    K = split_heads(X @ W_k, num_heads)
+    V = split_heads(X @ W_v, num_heads)
+    scores = Q @ K.transpose(-2, -1) / Q.shape[-1] ** 0.5
+    if mask is not None:
+        scores = scores.masked_fill(mask, float("-inf"))
+    weights = torch.softmax(scores, dim=-1)
+    return combine_heads(weights @ V) @ W_o, weights

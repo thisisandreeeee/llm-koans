@@ -35,8 +35,8 @@ class LoRALinear(nn.Module):
 
     def forward(self, x: Tensor) -> Tensor:
         """Return frozen base projection plus scaled low-rank adapter output."""
-        TODO(
-            "Combine the frozen base projection with the rank-limited adapter contribution at its configured strength."
+        return F.linear(x, self.weight, self.bias) + (x @ self.A @ self.B) * (
+            self.alpha / self.rank
         )
 
 
@@ -50,27 +50,38 @@ def add_lora_classifier_adapter(
     The base embedding and encoder should also be frozen. After this function,
     only the LoRA adapter matrices should require gradients.
     """
-    TODO(
-        "Install the adapter on the classifier while ensuring it is the model's only trainable component."
-    )
+    for parameter in model.parameters():
+        parameter.requires_grad = False
+    model.classifier = LoRALinear(model.classifier, rank, alpha)
+    return model
 
 
 def lora_adapter_state(layer: LoRALinear) -> dict[str, Tensor]:
     """Return the small adapter-only artifact you would save after LoRA tuning."""
-    TODO("Save only the trainable adapter artifact as independent tensors.")
+    return {"A": layer.A.detach().clone(), "B": layer.B.detach().clone()}
 
 
 def load_lora_adapter_state(
     layer: LoRALinear, adapter_state: dict[str, Tensor]
 ) -> LoRALinear:
     """Load a saved adapter artifact into an existing LoRA layer."""
-    TODO(
-        "Restore the saved adapter tensors without adding the load operation to autograd."
-    )
+    with torch.no_grad():
+        layer.A.copy_(adapter_state["A"])
+        layer.B.copy_(adapter_state["B"])
+    return layer
 
 
 def merge_lora_linear(layer: LoRALinear) -> nn.Linear:
     """Merge a LoRA layer into one ordinary Linear layer for simpler deployment."""
-    TODO(
-        "Fold the adapter's effective update into an ordinary linear layer with equivalent output."
+    merged = nn.Linear(
+        layer.weight.shape[1],
+        layer.weight.shape[0],
+        bias=layer.bias is not None,
+        device=layer.weight.device,
+        dtype=layer.weight.dtype,
     )
+    with torch.no_grad():
+        merged.weight.copy_(layer.weight + (layer.A @ layer.B * (layer.alpha / layer.rank)).T)
+        if layer.bias is not None:
+            merged.bias.copy_(layer.bias)
+    return merged

@@ -83,10 +83,11 @@ class TinyTransformer(nn.Module):
         self.lm_head = nn.Linear(d_model, vocab_size)
 
     def forward(self, token_ids: Tensor) -> Tensor:
-        """Return next‑token logits of shape (batch, seq_len, vocab_size)."""
-        TODO(
-            "Build position-aware token representations, prevent access to future tokens, and return vocabulary scores at every position."
-        )
+        """Return next-token logits of shape (batch, seq_len, vocab_size)."""
+        positions = torch.arange(token_ids.shape[1], device=token_ids.device)
+        X = self.token_embedding(token_ids) + self.position_embedding(positions)
+        X = self.transformer(X, mask=_causal_mask(token_ids.shape[1], token_ids.device))
+        return self.lm_head(X)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -139,9 +140,10 @@ class TinyEncoder(nn.Module):
 
     def forward(self, token_ids: Tensor) -> Tensor:
         """Return class logits of shape (batch, num_classes)."""
-        TODO(
-            "Encode position-aware tokens bidirectionally, reduce the sequence to one example representation, and classify it."
-        )
+        positions = torch.arange(token_ids.shape[1], device=token_ids.device)
+        X = self.token_embedding(token_ids) + self.position_embedding(positions)
+        X = self.transformer(X)
+        return self.classifier(X.mean(dim=1))
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -214,9 +216,17 @@ class TinyEncoderDecoder(nn.Module):
 
     def forward(self, src_ids: Tensor, tgt_ids: Tensor) -> Tensor:
         """Return next‑token logits of shape (batch, tgt_seq_len, tgt_vocab_size)."""
-        TODO(
-            "Create source and target representations, preserve causal target decoding, and return target-vocabulary scores."
+        src_positions = torch.arange(src_ids.shape[1], device=src_ids.device)
+        tgt_positions = torch.arange(tgt_ids.shape[1], device=tgt_ids.device)
+        src = self.enc_token_embedding(src_ids) + self.enc_position_embedding(src_positions)
+        memory = self.encoder(src)
+        tgt = self.dec_token_embedding(tgt_ids) + self.dec_position_embedding(tgt_positions)
+        decoded = self.decoder(
+            tgt,
+            memory,
+            tgt_mask=_causal_mask(tgt_ids.shape[1], tgt_ids.device),
         )
+        return self.lm_head(decoded)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -234,11 +244,16 @@ def train_one_step(
     logits[:, :-1, :] should predict token_ids[:, 1:].  Use cross‑entropy loss,
     back‑propagate, and step the optimizer.
     """
-    TODO(
-        "Perform one next-token update by aligning each prediction with the following token; return a loss safe to retain."
+    optimizer.zero_grad()
+    logits = model(token_ids)
+    loss = F.cross_entropy(
+        logits[:, :-1].reshape(-1, logits.shape[-1]), token_ids[:, 1:].reshape(-1)
     )
+    loss.backward()
+    optimizer.step()
+    return loss.detach()
 
 
 def parameter_delta_norm(before: dict[str, Tensor], after: dict[str, Tensor]) -> float:
     """Return the total L2 norm of parameter changes between two state‑dict snapshots."""
-    TODO("Aggregate all parameter changes into one Euclidean magnitude.")
+    return sum((before[name] - after[name]).pow(2).sum() for name in before).sqrt().item()

@@ -17,9 +17,11 @@ def distillation_kl_loss(
     The teacher provides a distribution over alternatives, not just a hard label.
     Temperature softens both distributions and the usual loss is scaled by T^2.
     """
-    TODO(
-        "Compare the student's and teacher's softened class distributions with the standard temperature scaling."
-    )
+    teacher_log_probs = F.log_softmax(teacher_logits / temperature, dim=-1)
+    student_log_probs = F.log_softmax(student_logits / temperature, dim=-1)
+    return (
+        teacher_log_probs.exp() * (teacher_log_probs - student_log_probs)
+    ).sum(dim=-1).mean() * temperature**2
 
 
 def blended_distillation_loss(
@@ -34,9 +36,9 @@ def blended_distillation_loss(
     alpha is the weight on distillation loss; 1-alpha is the weight on hard-label
     supervised loss.
     """
-    TODO(
-        "Combine hard-label supervision and teacher imitation according to alpha's documented meaning."
-    )
+    return alpha * distillation_kl_loss(student_logits, teacher_logits, temperature) + (
+        1 - alpha
+    ) * F.cross_entropy(student_logits, hard_labels)
 
 
 def distillation_step(
@@ -49,6 +51,13 @@ def distillation_step(
     temperature: float = 2.0,
 ) -> Tensor:
     """Run one distillation update on the student while keeping teacher frozen."""
-    TODO(
-        "Update only the student from the blended objective; teacher inference must not build gradients."
+    optimizer.zero_grad()
+    student_logits = student(token_ids)
+    with torch.no_grad():
+        teacher_logits = teacher(token_ids)
+    loss = blended_distillation_loss(
+        student_logits, teacher_logits, hard_labels, alpha, temperature
     )
+    loss.backward()
+    optimizer.step()
+    return loss.detach()
