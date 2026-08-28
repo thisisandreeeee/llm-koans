@@ -104,15 +104,13 @@ the earlier dimensions as batch dimensions:
 
 ## Suggest a koan
 
-Missing an LLM concept you would like to understand? [Open an
-issue](https://github.com/thisisandreeeee/llm-koans/issues/new)
-and suggest the next koan. Include the concept, what you hope to learn, and—if
-you have one—a small example that currently feels mysterious.
+Missing an LLM concept you would like to understand?
+[Open an issue](https://github.com/thisisandreeeee/llm-koans/issues/new) and suggest the next koan.
+Include the concept, what you hope to learn, and (if you have one) a small example that currently feels mysterious.
 
 ## Coming next
 
-- **Rotary positional embeddings (RoPE)** — encode token positions directly in query and key vectors.
-- **KV cache** — reuse keys and values from earlier tokens during generation.
-- **Grouped-query attention (GQA)** — share key/value heads to reduce inference memory and bandwidth.
-- **Speculative decoding** — use a smaller draft model to accelerate generation while preserving the target model's output distribution.
-- **Quantisation** — represent weights and activations with fewer bits to make models smaller and inference cheaper.
+- [ ] Positional encodings / RoPE
+- [ ] Autoregressive generation and sampling
+- [ ] KV cache
+- [ ] Grouped query attention
