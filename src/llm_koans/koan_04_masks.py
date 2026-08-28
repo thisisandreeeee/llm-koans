@@ -21,7 +21,9 @@ def causal_mask(seq_len: int, device: torch.device | None = None) -> Tensor:
          [False, False, False, True ],
          [False, False, False, False]]
     """
-    TODO("Use torch.triu with diagonal=1 to create an upper-triangular boolean mask.")
+    TODO(
+        "Construct a boolean grid where each position blocks only tokens to its right."
+    )
 
 
 def apply_attention_mask(scores: Tensor, mask: Tensor | None) -> Tensor:
@@ -31,10 +33,12 @@ def apply_attention_mask(scores: Tensor, mask: Tensor | None) -> Tensor:
     mask should broadcast over scores.
     """
     TODO(
-        "Use scores.masked_fill(mask, float('-inf')), but return scores unchanged if mask is None."
+        "Make blocked scores contribute no probability; treat a missing mask as a no-op."
     )
 
 
 def masked_attention_weights(Q: Tensor, K: Tensor, mask: Tensor | None) -> Tensor:
     """Scaled-softmax attention weights with an optional mask."""
-    TODO("Compute scores, apply mask, then softmax over the last dimension.")
+    TODO(
+        "Produce normalized attention weights while giving blocked positions no probability."
+    )

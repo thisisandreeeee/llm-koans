@@ -20,7 +20,7 @@ def split_batch_and_matrix_dims(
     PyTorch matmul treats the final two axes as a matrix and every earlier axis
     as batch: ``(..., rows, shared) @ (..., shared, cols)``.
     """
-    TODO("Return (shape[:-2], shape[-2:]).")
+    TODO("Separate the leading batch axes from the final two matrix axes.")
 
 
 def name_shape(x: Tensor, names: tuple[str, ...]) -> dict[str, int]:
@@ -30,9 +30,7 @@ def name_shape(x: Tensor, names: tuple[str, ...]) -> dict[str, int]:
         X.shape == (6, 16), names == ("tokens", "features")
         -> {"tokens": 6, "features": 16}
     """
-    TODO(
-        "Create a dict mapping each provided dimension name to the matching x.shape value."
-    )
+    TODO("Pair each axis label with the size at the same position.")
 
 
 def dot_product(a: Tensor, b: Tensor) -> Tensor:
@@ -40,7 +38,7 @@ def dot_product(a: Tensor, b: Tensor) -> Tensor:
 
     Intuition: a dot product is a single alignment score.
     """
-    TODO("Compute a · b. Hint: multiply elementwise, then sum; or use torch.dot.")
+    TODO("Reduce the two aligned vectors to their single similarity score.")
 
 
 def project_token(W: Tensor, x: Tensor) -> Tensor:
@@ -49,7 +47,9 @@ def project_token(W: Tensor, x: Tensor) -> Tensor:
     W has shape (d_out, d_in), x has shape (d_in,), output is (d_out,).
     This is the basic q = W_q @ x idea.
     """
-    TODO("Use matrix-vector multiplication to transform x with W.")
+    TODO(
+        "Contract the input-feature axis while keeping one output value per row of W."
+    )
 
 
 def project_sequence(X: Tensor, W: Tensor) -> Tensor:
@@ -59,4 +59,6 @@ def project_sequence(X: Tensor, W: Tensor) -> Tensor:
 
     Keep tokens as rows. That makes the projection X @ W.T.
     """
-    TODO("Project all token rows. Hint: X @ W.T")
+    TODO(
+        "Treat tokens as rows and align W's input-feature axis with X's feature axis."
+    )

@@ -35,7 +35,9 @@ class LoRALinear(nn.Module):
 
     def forward(self, x: Tensor) -> Tensor:
         """Return frozen base projection plus scaled low-rank adapter output."""
-        TODO("Compute F.linear(x, frozen weight/bias) + (x @ A @ B) * (alpha / rank).")
+        TODO(
+            "Combine the frozen base projection with the rank-limited adapter contribution at its configured strength."
+        )
 
 
 def add_lora_classifier_adapter(
@@ -49,13 +51,13 @@ def add_lora_classifier_adapter(
     only the LoRA adapter matrices should require gradients.
     """
     TODO(
-        "Freeze embedding/encoder, replace classifier with LoRALinear(model.classifier, rank, alpha), return model."
+        "Install the adapter on the classifier while ensuring it is the model's only trainable component."
     )
 
 
 def lora_adapter_state(layer: LoRALinear) -> dict[str, Tensor]:
     """Return the small adapter-only artifact you would save after LoRA tuning."""
-    TODO("Return detached clones for A and B only, not the frozen base weight/bias.")
+    TODO("Save only the trainable adapter artifact as independent tensors.")
 
 
 def load_lora_adapter_state(
@@ -63,12 +65,12 @@ def load_lora_adapter_state(
 ) -> LoRALinear:
     """Load a saved adapter artifact into an existing LoRA layer."""
     TODO(
-        "Copy adapter_state['A'] and adapter_state['B'] into layer.A and layer.B without tracking gradients, then return layer."
+        "Restore the saved adapter tensors without adding the load operation to autograd."
     )
 
 
 def merge_lora_linear(layer: LoRALinear) -> nn.Linear:
     """Merge a LoRA layer into one ordinary Linear layer for simpler deployment."""
     TODO(
-        "Create nn.Linear, set weight to frozen weight + transposed scaled LoRA delta, copy bias, and return it."
+        "Fold the adapter's effective update into an ordinary linear layer with equivalent output."
     )

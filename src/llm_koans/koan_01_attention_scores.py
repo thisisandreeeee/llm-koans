@@ -18,12 +18,14 @@ def attention_scores(Q: Tensor, K: Tensor) -> Tensor:
         Q: (..., T_query, d_k), K: (..., T_key, d_k)
         return: (..., T_query, T_key)
     """
-    TODO("Compute Q @ K transposed over its last two dimensions.")
+    TODO(
+        "Align the feature axes so every query is compared with every key."
+    )
 
 
 def scaled_scores(scores: Tensor, d_k: int) -> Tensor:
     """Scale attention scores by sqrt(d_k)."""
-    TODO("Divide scores by math.sqrt(d_k).")
+    TODO("Use the key width to keep dot-product magnitudes well behaved.")
 
 
 def softmax_last_dim(scores: Tensor) -> Tensor:
@@ -32,9 +34,9 @@ def softmax_last_dim(scores: Tensor) -> Tensor:
     In attention, the last dimension is usually the key-token dimension.
     Each row becomes weights over all keys.
     """
-    TODO("Use torch.softmax(..., dim=-1).")
+    TODO("Turn each query's key scores into a probability distribution.")
 
 
 def attention_weights(Q: Tensor, K: Tensor) -> Tensor:
     """Compute scaled-softmax attention weights from Q and K."""
-    TODO("Combine attention_scores, scaled_scores, and softmax_last_dim.")
+    TODO("Build attention weights from the three transformations above.")

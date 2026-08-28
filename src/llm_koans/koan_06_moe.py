@@ -36,7 +36,9 @@ def expert_router_logits(X: Tensor, router_W: Tensor, router_b: Tensor) -> Tenso
     Intuition: attention decides which tokens to read from; the router decides
     which token-local FFN expert should process each token after attention.
     """
-    TODO("Compute X @ router_W + router_b to produce one score per expert.")
+    TODO(
+        "Produce one routing score per expert for each token without mixing token positions."
+    )
 
 
 def top1_expert_routing(router_logits: Tensor) -> tuple[Tensor, Tensor]:
@@ -51,7 +53,9 @@ def top1_expert_routing(router_logits: Tensor) -> tuple[Tensor, Tensor]:
     This is the tiny version of Switch Transformer routing: one token goes to
     one expert, and the chosen expert output is scaled by the router confidence.
     """
-    TODO("Softmax over experts, take argmax, then gather the selected probability.")
+    TODO(
+        "Turn routing scores into confidences, then return each token's strongest expert and its confidence."
+    )
 
 
 def routed_expert_ffn(
@@ -75,7 +79,9 @@ def routed_expert_ffn(
     Each expert is a normal two-layer position-wise FFN. The MoE difference is
     that tokens can choose different FFN parameters through the router.
     """
-    TODO("For each expert id, run relu(X @ W1 + b1) @ W2 + b2 on only its tokens.")
+    TODO(
+        "Send each token through its assigned expert's two-layer FFN, then restore the original layout."
+    )
 
 
 def moe_encoder_block_forward(
@@ -96,4 +102,6 @@ def moe_encoder_block_forward(
         expert_indices: (B, T)
         expert_gates:   (B, T)
     """
-    TODO("Replace the dense FFN in an encoder block with top-1 routed expert FFNs.")
+    TODO(
+        "Follow the block stages above, scaling each selected expert's contribution by its routing confidence."
+    )

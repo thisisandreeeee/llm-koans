@@ -22,7 +22,9 @@ def position_wise_ffn(
 
     Intuition: attention lets tokens talk; FFN lets each token process itself.
     """
-    TODO("Compute relu(X @ W1 + b1) @ W2 + b2.")
+    TODO(
+        "Apply a two-layer position-wise transformation with a nonlinearity between projections."
+    )
 
 
 @dataclass
@@ -75,7 +77,9 @@ def encoder_block_forward(
 
     This uses functional layer_norm without trainable gamma/beta to keep the koan focused.
     """
-    TODO("Implement self-attention, FFN, and residual+layernorm after each.")
+    TODO(
+        "Follow the encoder stages above, wrapping each sublayer with its residual and normalization."
+    )
 
 
 def cross_attention(
@@ -96,7 +100,9 @@ def cross_attention(
         output:  (B, T_dec, D)
         weights: (B, H, T_dec, T_enc)
     """
-    TODO("Project Q from decoder states; project K/V from encoder states; then attend.")
+    TODO(
+        "Let decoder positions query the encoder representations and collect the resulting context."
+    )
 
 
 def decoder_block_forward(
@@ -113,5 +119,5 @@ def decoder_block_forward(
         Y3 = layer_norm(Y2 + position_wise_ffn(Y2))
     """
     TODO(
-        "Implement masked self-attention, cross-attention, FFN, with residual+layernorm after each."
+        "Follow the decoder stages above, preserving causal masking and encoder context in their respective sublayers."
     )
