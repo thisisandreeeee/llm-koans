@@ -14,12 +14,13 @@ def sequence_logprobs(
 ) -> Tensor:
     """Return total log-probability of each target sequence.
 
-    logits has shape (B, T, V), target_ids has shape (B, T). If mask is given,
-    only positions where mask is True contribute to the sequence score.
+    logits has shape (B, T, V), target_ids has shape (B, T). Each position's
+    logits predict the following token. If mask is given, only target positions
+    where mask is True contribute to the sequence score.
     """
-    token_logps = F.log_softmax(logits, dim=-1).gather(
-        -1, target_ids.unsqueeze(-1)
-    ).squeeze(-1)[:, 1:]
+    token_logps = F.log_softmax(logits[:, :-1], dim=-1).gather(
+        -1, target_ids[:, 1:].unsqueeze(-1)
+    ).squeeze(-1)
     if mask is not None:
         token_logps = token_logps.masked_fill(~mask[:, 1:], 0)
     return token_logps.sum(dim=-1)
