@@ -1,3 +1,5 @@
+"""Koan 06 tests: mixture-of-experts feed-forward layers."""
+
 import math
 
 import torch

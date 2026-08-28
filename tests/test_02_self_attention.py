@@ -1,3 +1,5 @@
+"""Koan 02 tests: single-head self-attention."""
+
 import math
 
 import torch

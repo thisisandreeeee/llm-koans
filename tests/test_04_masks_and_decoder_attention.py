@@ -1,5 +1,7 @@
 import math
 
+"""Koan 04 tests: causal masking."""
+
 import torch
 
 from llm_koans import koans as K
