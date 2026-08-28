@@ -14,11 +14,12 @@ def sequence_logprobs(
 ) -> Tensor:
     """Return total log-probability of each target sequence.
 
-    logits has shape (B, T, V), target_ids has shape (B, T). If mask is given,
-    only positions where mask is True contribute to the sequence score.
+    logits has shape (B, T, V), target_ids has shape (B, T). Each position's
+    logits predict the following token. If mask is given, only target positions
+    where mask is True contribute to the sequence score.
     """
     TODO(
-        "Accumulate the log-probabilities assigned to each sequence's target tokens, honoring the optional mask."
+        "Shift causal logits against the following target tokens, then sum only the optional mask's target positions."
     )
 
 
