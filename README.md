@@ -1,138 +1,93 @@
 # LLM Koans
 
-A hands-on set of practical Python koans for building intuition about attention, Transformers, and LLM training mechanics.
+Learn how large language models work by completing small, focused PyTorch exercises.
 
-The koans teach the core mechanics behind modern LLMs:
+A **koan** is a deliberately incomplete program that teaches one idea at a
+time. Run its tests, study the failure, fill in the missing implementation,
+and repeat until the tests pass. The short feedback loop turns concepts such
+as attention, masking, and fine-tuning into code you can inspect and change.
 
-- **PyTorch matmul rule** = last two dims are the matrix; earlier dims are batch.
-- **Query** = what this token is looking for.
-- **Key** = how another token advertises that it is relevant.
-- **Value** = the information retrieved if that token is attended to.
-- **Dot product** = an alignment/similarity score between a query and a key.
-- **Softmax** = converts raw scores into positive weights that sum to 1.
-- **Context vector** = a weighted blend of values; the token after gathering context.
-- **Encoder/decoder blocks** = the classic Transformer building blocks.
-- **Mixture of Experts (MoE)** = replace the dense FFN sublayer with a router and multiple token-local FFN experts.
-- **Transformer assembly** = compose nn.Embedding, nn.TransformerEncoder/Decoder, and task heads into GPT‑style, BERT‑style, and T5‑style architectures from the same building blocks.
-- **Training loop** = shift logits for next-token prediction, compute loss, backprop, step.
-- **SFT data formatting** = apply a chat template and mask prompt tokens out of the loss.
-- **Fine-tuning** = adapt a base model by choosing which parameters update and which loss to optimize.
-- **LoRA/PEFT lifecycle** = train, save/load, and merge small low-rank adapters over a frozen base.
-- **Distillation** = train a smaller student from a teacher's softened output distribution.
-- **Preference tuning** = use chosen-vs-rejected examples to train DPO-style policy updates.
+This repository is a learning project, not a production LLM library. The tests
+are the teacher, the source files are the workbook, and [`KOANS.md`](KOANS.md)
+provides the lesson notes and hints.
 
-The attention exercises are inspired by the step-by-step structure in Sebastian Raschka's article, "Understanding and Coding the Self-Attention Mechanism of Large Language Models From Scratch":
+## Learning path
 
-https://sebastianraschka.com/blog/2023/self-attention-from-scratch.html
+The 12 koans build on one another:
 
-The training exercises are informed by *LLMs in Production* by Christopher Brousseau and Matthew Sharp, especially the chapter 5 sections on fine-tuning, distillation, RLHF, LoRA/PEFT, and the adaptation tradeoff between full updates and parameter-efficient updates.
+| Stage                 | Koans | What you will learn                                                                                |
+| --------------------- | ----- | -------------------------------------------------------------------------------------------------- |
+| Tensor foundations    | 00–01 | Shapes, projections, dot products, scaled attention scores, and softmax                            |
+| Transformer mechanics | 02–06 | Self-attention, multiple heads, causal masks, encoder/decoder blocks, and mixture of experts       |
+| Models and training   | 07–08 | GPT-, BERT-, and T5-style models, next-token training, chat formatting, and supervised fine-tuning |
+| Model adaptation      | 09–11 | LoRA adapters, knowledge distillation, and DPO preference tuning                                   |
 
-## Repository layout
+See the complete sequence, learning goals, and function-level hints in [`KOANS.md`](KOANS.md).
 
-```text
-llm-koans/
-├── src/llm_koans/                 # You edit the focused koan modules here
-│   ├── koan_00_shapes_and_projections.py
-│   ├── koan_01_attention_scores.py
-│   ├── koan_02_self_attention.py
-│   ├── koan_03_multihead_attention.py
-│   ├── koan_04_masks.py
-│   ├── koan_05_blocks.py
-│   ├── koan_06_moe.py
-│   ├── koan_07_training.py
-│   ├── koan_08_finetuning.py
-│   ├── koan_09_lora_lifecycle.py
-│   ├── koan_10_distillation.py
-│   ├── koan_11_dpo.py
-│   ├── common.py                  # Shared helpers, no koan prefix
-│   └── koans.py                   # Stable public API used by tests
-├── tests/                         # Tests verify each koan
-├── tools/check.py                  # Convenience test runner
-├── README.md
-├── KOANS.md                       # Learning path and hints
-├── requirements.txt
-└── pyproject.toml
-```
+## Getting started
 
-## Setup
+You need Git and [uv](https://docs.astral.sh/uv/getting-started/installation/).
 
 ```bash
-cd attention-transformer-koans  # repository name on GitHub for now
-python -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
-python -m pip install -e .
+git clone https://github.com/thisisandreeeee/llm-koans.git
+cd llm-koans
+git checkout main
+uv sync
 ```
 
-## How to work through the koans
-
-Run all tests:
+Start with the first koan:
 
 ```bash
-pytest
+uv run pytest tests/test_00_*.py
 ```
 
-At first, many tests will fail because the focused modules in `src/llm_koans/` contain `TODO` placeholders.
+Koan 00 will fail because its functions contain `TODO` placeholders. That is your starting point.
 
-Work through the tests in order:
+## Working through the koans
+
+For each koan:
+
+1. Read its section in [`KOANS.md`](KOANS.md).
+2. Open the matching test, such as [`tests/test_00_shapes_and_projections.py`](tests/test_00_shapes_and_projections.py).
+3. Replace one `TODO` in the matching `src/llm_koans/koan_*.py` module.
+4. Run that koan again and use the failure as your next clue.
+5. Move to the next numbered koan when all of its tests pass.
+
+Run one koan or the full suite with:
 
 ```bash
-pytest tests/test_00_shapes_and_projections.py -q
-pytest tests/test_01_attention_scores.py -q
-pytest tests/test_02_self_attention.py -q
-pytest tests/test_03_multihead_attention.py -q
-pytest tests/test_04_masks_and_decoder_attention.py -q
-pytest tests/test_05_encoder_decoder_blocks.py -q
-pytest tests/test_06_moe.py -q
-pytest tests/test_07_training_updates.py -q
-pytest tests/test_08_finetuning.py -q
-pytest tests/test_09_lora_lifecycle.py -q
-pytest tests/test_10_distillation.py -q
-pytest tests/test_11_dpo.py -q
+uv run pytest tests/test_03_*.py  # one koan
+uv run pytest                     # every koan
 ```
 
-Or use the helper:
+Try to make the smallest change that satisfies the current test. If you get
+stuck, revisit the test names, docstrings, and hints before looking at the answer.
+
+## Reference solutions
+
+Completed implementations live on the [`ref/model-answers`](https://github.com/thisisandreeeee/llm-koans/tree/ref/model-answers) branch.
+
+You can inspect a solution without replacing your in-progress files:
 
 ```bash
-python tools/check.py
-python tools/check.py 03
+git fetch origin
+git show origin/ref/model-answers:src/llm_koans/koan_03_multihead_attention.py
 ```
 
-## Suggested learning loop
+Change `03_multihead_attention` to the koan you want to review. Avoid switching
+your working tree to the solutions branch while solving the exercises, since
+that branch replaces the `TODO`s with the completed code.
 
-1. Open the failing test.
-2. Read the test name and comments.
-3. Implement only the function needed for that test in the matching focused module.
-4. Run the test again.
-5. Move to the next test file.
+## Tensor shape convention
 
-This is intentionally not a polished library. It is a learning repo. The tests are the teacher.
-
-## PyTorch matmul rule of thumb
-
-For tensors with two or more dimensions, `torch.matmul` treats the final two
-axes as the matrix and every earlier axis as batch:
+Most exercises use this PyTorch-friendly convention:
 
 ```text
-(..., rows, shared) @ (..., shared, cols) -> (..., rows, cols)
-```
-
-The leading batch axes must either match or be broadcastable. This is why:
-
-```text
-(B, T, D) @ (D, E)              -> (B, T, E)
-(B, H, Tq, D) @ (B, H, D, Tk)   -> (B, H, Tq, Tk)
-```
-
-## Shape convention used here
-
-Most tensor functions use the practical PyTorch-friendly convention:
-
-```text
-B = batch size
-T = sequence length
-D = d_model / embedding size
-H = number of attention heads
-Dh = per-head dimension
+B  = batch size
+T  = sequence length
+D  = model/embedding dimension
+H  = number of attention heads
+Dh = dimension per head
 
 X:      (B, T, D)
 Q/K/V:  (B, T, D) before splitting heads
@@ -140,12 +95,24 @@ heads:  (B, H, T, Dh)
 scores: (B, H, T_query, T_key)
 ```
 
-The basic single-sequence examples also use:
+Remember that `torch.matmul` treats the final two dimensions as the matrix and
+the earlier dimensions as batch dimensions:
 
 ```text
-X: (T, d)
-W: (d_out, d_in)
-X @ W.T -> (T, d_out)
+(..., rows, shared) @ (..., shared, cols) -> (..., rows, cols)
 ```
 
-This matches the practical mental model: keep tokens as rows, then use `X @ W.T` for projection-matrix examples.
+## Suggest a koan
+
+Missing an LLM concept you would like to understand? [Open an
+issue](https://github.com/thisisandreeeee/llm-koans/issues/new)
+and suggest the next koan. Include the concept, what you hope to learn, and—if
+you have one—a small example that currently feels mysterious.
+
+## Coming next
+
+- **Rotary positional embeddings (RoPE)** — encode token positions directly in query and key vectors.
+- **KV cache** — reuse keys and values from earlier tokens during generation.
+- **Grouped-query attention (GQA)** — share key/value heads to reduce inference memory and bandwidth.
+- **Speculative decoding** — use a smaller draft model to accelerate generation while preserving the target model's output distribution.
+- **Quantisation** — represent weights and activations with fewer bits to make models smaller and inference cheaper.
