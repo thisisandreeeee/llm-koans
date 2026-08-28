@@ -14,7 +14,7 @@ def context_from_weights(weights: Tensor, V: Tensor) -> Tensor:
     V:       (..., T_key, d_v)
     output:  (..., T_query, d_v)
     """
-    TODO("The context vector is weights @ V.")
+    TODO("For each query, form a weighted combination of the value vectors.")
 
 
 def self_attention_for_one_query(
@@ -30,7 +30,9 @@ def self_attention_for_one_query(
         context: (d_v,)
         weights: (T,)
     """
-    TODO("Compute scores query @ keys.T, softmax them, then use weights @ values.")
+    TODO(
+        "Derive one score per key, normalize those scores, and use them to blend values."
+    )
 
 
 def single_head_self_attention(
@@ -47,4 +49,6 @@ def single_head_self_attention(
         context: (T, d_v)
         weights: (T, T)
     """
-    TODO("Project X to Q/K/V, compute weights, then compute context.")
+    TODO(
+        "Create query, key, and value representations, then reuse the preceding attention ideas."
+    )

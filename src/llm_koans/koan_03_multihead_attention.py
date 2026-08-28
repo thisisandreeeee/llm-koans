@@ -15,7 +15,9 @@ def split_heads(X: Tensor, num_heads: int) -> Tensor:
 
     The operation should not change the data order; it only reshapes and permutes.
     """
-    TODO("Reshape to (B, T, H, Dh), then permute to (B, H, T, Dh).")
+    TODO(
+        "Separate model features into equal heads so each head sees the full sequence."
+    )
 
 
 def combine_heads(X: Tensor) -> Tensor:
@@ -24,7 +26,7 @@ def combine_heads(X: Tensor) -> Tensor:
     X:      (B, H, T, Dh)
     return: (B, T, H * Dh)
     """
-    TODO("Permute to (B, T, H, Dh), make contiguous, then view/reshape.")
+    TODO("Reverse split_heads while preserving token and feature order.")
 
 
 def multi_head_self_attention(
@@ -51,4 +53,6 @@ def multi_head_self_attention(
         output:  (B, T, D)
         weights: (B, H, T, T)
     """
-    TODO("Project, split heads, attend, combine heads, then apply W_o.")
+    TODO(
+        "Apply self-attention independently per head, preserve optional masking, and restore model width."
+    )

@@ -18,7 +18,7 @@ def sequence_logprobs(
     only positions where mask is True contribute to the sequence score.
     """
     TODO(
-        "Gather log_softmax(logits) at target_ids, optionally mask positions, then sum over time."
+        "Accumulate the log-probabilities assigned to each sequence's target tokens, honoring the optional mask."
     )
 
 
@@ -35,7 +35,7 @@ def dpo_loss(
     a frozen reference model, without training a separate reward model.
     """
     TODO(
-        "Compute beta * ((policy chosen-rejected gap) - (reference chosen-rejected gap)), then mean -logsigmoid."
+        "Compare the policy's preference margin with the reference model's margin, then form the DPO objective."
     )
 
 
@@ -55,5 +55,5 @@ def dpo_step(
     tokens only, so prompt likelihood does not become the preference signal.
     """
     TODO(
-        "Compute policy/reference sequence logprobs for chosen/rejected, use dpo_loss, update only policy, return detached loss."
+        "Evaluate both completions under policy and frozen reference, then optimize only the policy preference."
     )

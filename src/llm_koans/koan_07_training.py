@@ -85,7 +85,7 @@ class TinyTransformer(nn.Module):
     def forward(self, token_ids: Tensor) -> Tensor:
         """Return next‑token logits of shape (batch, seq_len, vocab_size)."""
         TODO(
-            "Embed tokens + positions, create causal mask, run transformer, project to vocab."
+            "Build position-aware token representations, prevent access to future tokens, and return vocabulary scores at every position."
         )
 
 
@@ -140,7 +140,7 @@ class TinyEncoder(nn.Module):
     def forward(self, token_ids: Tensor) -> Tensor:
         """Return class logits of shape (batch, num_classes)."""
         TODO(
-            "Embed tokens + positions, run transformer WITHOUT a causal mask, mean pool, classify."
+            "Encode position-aware tokens bidirectionally, reduce the sequence to one example representation, and classify it."
         )
 
 
@@ -215,7 +215,7 @@ class TinyEncoderDecoder(nn.Module):
     def forward(self, src_ids: Tensor, tgt_ids: Tensor) -> Tensor:
         """Return next‑token logits of shape (batch, tgt_seq_len, tgt_vocab_size)."""
         TODO(
-            "Encode source (no mask), decode target with causal mask + cross-attention to encoder output, project to vocab."
+            "Create source and target representations, preserve causal target decoding, and return target-vocabulary scores."
         )
 
 
@@ -235,12 +235,10 @@ def train_one_step(
     back‑propagate, and step the optimizer.
     """
     TODO(
-        "Forward, shift logits and targets, compute cross-entropy, backward, step optimizer, return detached loss."
+        "Perform one next-token update by aligning each prediction with the following token; return a loss safe to retain."
     )
 
 
 def parameter_delta_norm(before: dict[str, Tensor], after: dict[str, Tensor]) -> float:
     """Return the total L2 norm of parameter changes between two state‑dict snapshots."""
-    TODO(
-        "Sum squared parameter differences across matching keys, then return sqrt(total)."
-    )
+    TODO("Aggregate all parameter changes into one Euclidean magnitude.")

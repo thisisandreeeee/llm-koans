@@ -18,7 +18,7 @@ def distillation_kl_loss(
     Temperature softens both distributions and the usual loss is scaled by T^2.
     """
     TODO(
-        "Use teacher softmax/log-softmax and student log-softmax at logits / temperature, then mean KL * temperature**2."
+        "Compare the student's and teacher's softened class distributions with the standard temperature scaling."
     )
 
 
@@ -35,7 +35,7 @@ def blended_distillation_loss(
     supervised loss.
     """
     TODO(
-        "Return alpha * distillation_kl_loss + (1 - alpha) * cross_entropy against hard_labels."
+        "Combine hard-label supervision and teacher imitation according to alpha's documented meaning."
     )
 
 
@@ -50,5 +50,5 @@ def distillation_step(
 ) -> Tensor:
     """Run one distillation update on the student while keeping teacher frozen."""
     TODO(
-        "Run teacher under no_grad, student normally, backprop blended_distillation_loss, step optimizer, return detached loss."
+        "Update only the student from the blended objective; teacher inference must not build gradients."
     )
